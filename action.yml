@@ -1,0 +1,76 @@
+name: 'AI Decision Platform — Customer Support Triage'
+description: 'Production-grade AI decision engine that triages customer support messages with 5-signal confidence scoring, PII redaction, and policy-gated responses in under 150ms.'
+author: 'hemanthsai-d'
+
+branding:
+  icon: 'cpu'
+  color: 'purple'
+
+inputs:
+  issue_text:
+    description: 'Customer support message to triage'
+    required: true
+  customer_tier:
+    description: 'Customer tier (basic, premium, enterprise)'
+    required: false
+    default: 'basic'
+  channel:
+    description: 'Support channel (chat, email, phone, web)'
+    required: false
+    default: 'chat'
+  confidence_threshold:
+    description: 'Minimum confidence to auto-respond (0.0–1.0)'
+    required: false
+    default: '0.6'
+  pii_redaction:
+    description: 'Enable PII redaction (true/false)'
+    required: false
+    default: 'true'
+  injection_detection:
+    description: 'Enable prompt injection detection (true/false)'
+    required: false
+    default: 'true'
+  embedding_backend:
+    description: 'Embedding backend (sentence-transformer, none)'
+    required: false
+    default: 'sentence-transformer'
+  model_backend:
+    description: 'LLM backend (ollama, none). Set to none for classification-only mode.'
+    required: false
+    default: 'none'
+  output_format:
+    description: 'Output format (json, summary)'
+    required: false
+    default: 'json'
+
+outputs:
+  decision:
+    description: 'Triage decision: auto_respond, abstain, or escalate'
+  intent:
+    description: 'Classified intent category (one of 30 categories)'
+  confidence:
+    description: 'Final confidence score (0.0–1.0)'
+  confidence_signals:
+    description: 'JSON object with individual signal scores'
+  pii_detected:
+    description: 'Whether PII was detected and redacted (true/false)'
+  injection_detected:
+    description: 'Whether prompt injection was detected (true/false)'
+  policy_override:
+    description: 'Policy override applied, if any (null or override reason)'
+  result_json:
+    description: 'Full JSON result object'
+
+runs:
+  using: 'docker'
+  image: 'action/Dockerfile'
+  args:
+    - ${{ inputs.issue_text }}
+    - ${{ inputs.customer_tier }}
+    - ${{ inputs.channel }}
+    - ${{ inputs.confidence_threshold }}
+    - ${{ inputs.pii_redaction }}
+    - ${{ inputs.injection_detection }}
+    - ${{ inputs.embedding_backend }}
+    - ${{ inputs.model_backend }}
+    - ${{ inputs.output_format }}

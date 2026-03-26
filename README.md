@@ -7,6 +7,7 @@
   <img src="https://img.shields.io/badge/Kubernetes-Helm-326CE5?style=for-the-badge&logo=kubernetes&logoColor=white" alt="Kubernetes"/>
   <img src="https://img.shields.io/badge/Prometheus-Grafana-E6522C?style=for-the-badge&logo=prometheus&logoColor=white" alt="Observability"/>
   <img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge" alt="License"/>
+  <a href="https://github.com/marketplace/actions/ai-decision-platform-customer-support-triage"><img src="https://img.shields.io/badge/GitHub%20Marketplace-Action-2088FF?style=for-the-badge&logo=github-actions&logoColor=white" alt="GitHub Marketplace"/></a>
 </p>
 
 <h1 align="center">🧠 Decision Platform</h1>
@@ -35,8 +36,9 @@
 | 11 | [API Reference](#11-api-reference) | All endpoints and schemas |
 | 12 | [Configuration Reference](#12-configuration-reference) | Every setting explained |
 | 13 | [Getting Started](#13-getting-started) | Setup, run, first request |
-| 14 | [Project Structure](#14-project-structure) | Full directory tree |
-| 15 | [Makefile Commands](#15-makefile-commands) | All available commands |
+| 14 | [GitHub Action (Marketplace)](#14-github-action-marketplace) | Use as a GitHub Action in your workflows |
+| 15 | [Project Structure](#15-project-structure) | Full directory tree |
+| 16 | [Makefile Commands](#16-makefile-commands) | All available commands |
 
 ---
 
@@ -1474,7 +1476,79 @@ make run-mcp
 
 ---
 
-## 14. Project Structure
+## 14. GitHub Action (Marketplace)
+
+Use the AI Decision Platform directly in your GitHub Actions workflows — no server setup required.
+
+### Basic Usage
+
+```yaml
+name: Triage Customer Message
+on: [workflow_dispatch]
+
+jobs:
+  triage:
+    runs-on: ubuntu-latest
+    steps:
+      - name: AI Decision
+        uses: hemanthsai-d/Industry_Agnostic_Decision_System@v1
+        id: decision
+        with:
+          issue_text: "I was charged twice for my subscription last month"
+          customer_tier: premium
+          channel: chat
+
+      - name: Handle Result
+        run: |
+          echo "Decision: ${{ steps.decision.outputs.decision }}"
+          echo "Intent:   ${{ steps.decision.outputs.intent }}"
+          echo "Confidence: ${{ steps.decision.outputs.confidence }}"
+```
+
+### Inputs
+
+| Input | Required | Default | Description |
+|-------|----------|---------|-------------|
+| `issue_text` | **Yes** | — | Customer support message to triage |
+| `customer_tier` | No | `basic` | Customer tier: basic, premium, enterprise |
+| `channel` | No | `chat` | Support channel: chat, email, phone, web |
+| `confidence_threshold` | No | `0.6` | Minimum confidence to auto-respond (0.0–1.0) |
+| `pii_redaction` | No | `true` | Enable PII redaction |
+| `injection_detection` | No | `true` | Enable prompt injection detection |
+| `embedding_backend` | No | `sentence-transformer` | Embedding backend |
+| `model_backend` | No | `none` | LLM backend (none = classification-only) |
+| `output_format` | No | `json` | Output format: json or summary |
+
+### Outputs
+
+| Output | Description |
+|--------|-------------|
+| `decision` | `auto_respond`, `abstain`, or `escalate` |
+| `intent` | Classified intent category (30 categories) |
+| `confidence` | Final confidence score (0.0–1.0) |
+| `confidence_signals` | JSON with individual signal scores |
+| `pii_detected` | Whether PII was found and redacted |
+| `injection_detected` | Whether prompt injection was blocked |
+| `policy_override` | Policy rule that triggered, if any |
+| `result_json` | Full JSON result object |
+
+### Example: Auto-Escalate to Jira
+
+```yaml
+- name: Triage
+  uses: hemanthsai-d/Industry_Agnostic_Decision_System@v1
+  id: triage
+  with:
+    issue_text: ${{ github.event.issue.body }}
+
+- name: Create Jira Ticket
+  if: steps.triage.outputs.decision == 'escalate'
+  run: echo "Escalating — intent=${{ steps.triage.outputs.intent }}"
+```
+
+---
+
+## 15. Project Structure
 
 ```
 decision-platform-baseline/
@@ -1544,7 +1618,7 @@ decision-platform-baseline/
 
 ---
 
-## 15. Makefile Commands
+## 16. Makefile Commands
 
 ### Development
 
