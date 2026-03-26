@@ -1,5 +1,5 @@
 name: 'AI Decision Platform — Customer Support Triage'
-description: 'Production-grade AI decision engine that triages customer support messages with 5-signal confidence scoring, PII redaction, and policy-gated responses in under 150ms.'
+description: 'AI decision engine for customer support triage with confidence scoring, PII redaction, and policy gates.'
 author: 'hemanthsai-d'
 
 branding:
