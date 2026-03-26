@@ -236,7 +236,7 @@ class RetrievalService:
         source_bonus = 0.02 if record.source in {'runbook', 'internal_wiki', 'policy'} else 0.0
         recency_bonus = self._recency_bonus(record.updated_at)
 
-        score = (0.72 * token_cosine) + (0.16 * phrase_overlap) + (0.08 * fuzzy_overlap)
+        score = (0.68 * token_cosine) + (0.16 * phrase_overlap) + (0.12 * fuzzy_overlap)
         score += section_bonus + source_bonus + recency_bonus
 
         if score <= 0:
