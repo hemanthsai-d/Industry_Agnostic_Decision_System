@@ -1,0 +1,139 @@
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: decision_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-decision_db}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-decision_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    container_name: decision_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  opa:
+    image: openpolicyagent/opa:0.69.0-static
+    container_name: decision_opa
+    restart: unless-stopped
+    command:
+      - run
+      - --server
+      - --addr=0.0.0.0:8181
+      - /policy/decision.rego
+    volumes:
+      - ./policy:/policy
+    ports:
+      - "8181:8181"
+    profiles:
+      - policy
+
+  model-serving:
+    build:
+      context: .
+      dockerfile: model_server/Dockerfile
+    container_name: decision_model_serving
+    restart: unless-stopped
+    environment:
+      MODEL_SERVER_BACKEND: artifact
+      ROUTING_MODEL_ARTIFACT_PATH: /app/artifacts/models/routing_linear_v1.json
+      ROUTING_CALIBRATION_ARTIFACT_PATH: /app/artifacts/models/routing_temperature_v1.json
+      ESCALATION_MODEL_ARTIFACT_PATH: /app/artifacts/models/escalation_linear_v1.json
+      ESCALATION_CALIBRATION_ARTIFACT_PATH: /app/artifacts/models/escalation_platt_v1.json
+    ports:
+      - "9000:9000"
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:9000/health', timeout=2).read()\""]
+      interval: 15s
+      timeout: 5s
+      retries: 8
+    profiles:
+      - model-serving
+
+  prometheus:
+    image: prom/prometheus:v2.55.1
+    container_name: decision_prometheus
+    restart: unless-stopped
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --web.enable-lifecycle
+    volumes:
+      - ./observability/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./observability/prometheus/rules:/etc/prometheus/rules:ro
+      - prometheus_data:/prometheus
+    ports:
+      - "9090:9090"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    profiles:
+      - observability
+
+  alertmanager:
+    image: prom/alertmanager:v0.28.0
+    container_name: decision_alertmanager
+    restart: unless-stopped
+    command:
+      - --config.file=/etc/alertmanager/alertmanager.yml
+      - --storage.path=/alertmanager
+    volumes:
+      - ./observability/alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
+      - alertmanager_data:/alertmanager
+    ports:
+      - "9093:9093"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    profiles:
+      - observability
+
+  grafana:
+    image: grafana/grafana-oss:11.2.2
+    container_name: decision_grafana
+    restart: unless-stopped
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-admin}
+      GF_USERS_ALLOW_SIGN_UP: 'false'
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./observability/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./observability/grafana/dashboards:/var/lib/grafana/dashboards:ro
+    ports:
+      - "3000:3000"
+    depends_on:
+      - prometheus
+    profiles:
+      - observability
+
+  jaeger:
+    image: jaegertracing/all-in-one:1.60
+    container_name: decision_jaeger
+    restart: unless-stopped
+    ports:
+      - "16686:16686"
+      - "4317:4317"
+    profiles:
+      - observability
+
+volumes:
+  postgres_data:
+  prometheus_data:
+  alertmanager_data:
+  grafana_data:

@@ -1,0 +1,48 @@
+{
+  "base_url": "http://127.0.0.1:8000",
+  "concurrency": 10,
+  "duration_seconds": 900,
+  "errors": [
+    "error_rate 1.0000 exceeded max_error_rate 0.0200."
+  ],
+  "generated_at_utc": "2026-02-17T23:33:17.152942+00:00",
+  "mode": "soak",
+  "passed": false,
+  "summary": {
+    "error_rate": 1.0,
+    "mean_latency_ms": 2.77,
+    "p50_latency_ms": 2.56,
+    "p95_latency_ms": 3.11,
+    "status_counts": {
+      "0": 3237423
+    },
+    "success_requests": 0,
+    "total_requests": 3237423,
+    "transport_errors_sample": [
+      "All connection attempts failed",
+      "All connection attempts failed",
+      "All connection attempts failed",
+      "All connection attempts failed",
+      "All connection attempts failed",
+      "All connection attempts failed",
+      "All connection attempts failed",
+      "All connection attempts failed",
+      "All connection attempts failed",
+      "All connection attempts failed",
+      "All connection attempts failed",
+      "All connection attempts failed",
+      "All connection attempts failed",
+      "All connection attempts failed",
+      "All connection attempts failed",
+      "All connection attempts failed",
+      "All connection attempts failed",
+      "All connection attempts failed",
+      "All connection attempts failed",
+      "All connection attempts failed"
+    ]
+  },
+  "thresholds": {
+    "max_error_rate": 0.02,
+    "max_p95_latency_ms": 1200.0
+  }
+}

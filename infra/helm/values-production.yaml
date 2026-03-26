@@ -1,0 +1,92 @@
+# Production environment overrides for decision-platform Helm chart.
+
+replicaCount: 3
+
+image:
+  repository: ghcr.io/org/decision-api
+  pullPolicy: IfNotPresent
+
+modelServer:
+  replicaCount: 2
+  resources:
+    requests:
+      cpu: 500m
+      memory: 512Mi
+    limits:
+      cpu: "2"
+      memory: 1Gi
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 8
+    targetCPUUtilizationPercentage: 70
+
+resources:
+  requests:
+    cpu: 500m
+    memory: 512Mi
+  limits:
+    cpu: "1"
+    memory: 1Gi
+
+autoscaling:
+  enabled: true
+  minReplicas: 3
+  maxReplicas: 20
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 80
+
+canary:
+  enabled: true
+  weight: 0
+  steps:
+    - setWeight: 10
+    - pause: {duration: 5m}
+    - setWeight: 25
+    - pause: {duration: 5m}
+    - setWeight: 50
+    - pause: {duration: 10m}
+    - setWeight: 100
+  analysis:
+    successRate: 99
+    latencyP95: 1000
+
+env:
+  APP_ENV: production
+  AUTH_ENABLED: "true"
+  USE_POSTGRES: "true"
+  USE_REDIS: "true"
+  RATE_LIMIT_ENABLED: "true"
+  METRICS_ENABLED: "true"
+  TRACING_ENABLED: "true"
+  PII_REDACTION_ENABLED: "true"
+  MODEL_SHADOW_ENABLED: "true"
+  EMBEDDING_BACKEND: sentence-transformer
+  RETRIEVAL_VECTOR_DIM: "384"
+  RLS_ENABLED: "true"
+  CANARY_ROLLOUT_ENABLED: "true"
+  SECRETS_BACKEND: vault
+
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/rate-limit: "120"
+    nginx.ingress.kubernetes.io/rate-limit-window: "1m"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+  hosts:
+    - host: api.decision-platform.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: decision-api-tls
+      hosts:
+        - api.decision-platform.com
+
+podDisruptionBudget:
+  minAvailable: 2
+
+environment: production

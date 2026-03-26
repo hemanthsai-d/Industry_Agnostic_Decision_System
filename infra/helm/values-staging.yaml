@@ -1,0 +1,69 @@
+# Staging environment overrides for decision-platform Helm chart.
+
+replicaCount: 2
+
+image:
+  repository: ghcr.io/org/decision-api
+  pullPolicy: Always
+
+modelServer:
+  replicaCount: 1
+  resources:
+    requests:
+      cpu: 250m
+      memory: 256Mi
+    limits:
+      cpu: "1"
+      memory: 512Mi
+  autoscaling:
+    enabled: false
+
+resources:
+  requests:
+    cpu: 250m
+    memory: 256Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
+
+autoscaling:
+  enabled: false
+
+canary:
+  enabled: false
+  weight: 0
+
+env:
+  APP_ENV: staging
+  AUTH_ENABLED: "true"
+  USE_POSTGRES: "true"
+  USE_REDIS: "true"
+  RATE_LIMIT_ENABLED: "true"
+  METRICS_ENABLED: "true"
+  TRACING_ENABLED: "true"
+  PII_REDACTION_ENABLED: "true"
+  MODEL_SHADOW_ENABLED: "true"
+  EMBEDDING_BACKEND: sentence-transformer
+  RETRIEVAL_VECTOR_DIM: "384"
+  RLS_ENABLED: "true"
+
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-staging
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+  hosts:
+    - host: staging.decision-platform.internal
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: decision-api-staging-tls
+      hosts:
+        - staging.decision-platform.internal
+
+podDisruptionBudget:
+  minAvailable: 1
+
+environment: staging

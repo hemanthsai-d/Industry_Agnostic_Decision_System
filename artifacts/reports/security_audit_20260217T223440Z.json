@@ -1,0 +1,51 @@
+{
+  "control_recency": [
+    {
+      "control_type": "secret_rotation",
+      "max_age_days": 90,
+      "status": "missing_pass_event"
+    },
+    {
+      "control_type": "access_review",
+      "max_age_days": 90,
+      "status": "missing_pass_event"
+    },
+    {
+      "control_type": "oncall_schedule_audit",
+      "max_age_days": 30,
+      "status": "missing_pass_event"
+    },
+    {
+      "control_type": "incident_endpoint_verification",
+      "max_age_days": 30,
+      "status": "missing_pass_event"
+    }
+  ],
+  "environment": {
+    "app_env": "local",
+    "auth_enabled": false,
+    "rate_limit_enabled": false,
+    "use_postgres": false,
+    "use_redis": false
+  },
+  "errors": [
+    "APP_ENV must be production/prod.",
+    "AUTH_ENABLED must be true.",
+    "JWT_SECRET_KEY is insecure/default.",
+    "USE_POSTGRES must be true.",
+    "Control recency check failed for secret_rotation: status=missing_pass_event, max_age_days=90.",
+    "Control recency check failed for access_review: status=missing_pass_event, max_age_days=90.",
+    "Control recency check failed for oncall_schedule_audit: status=missing_pass_event, max_age_days=30.",
+    "Control recency check failed for incident_endpoint_verification: status=missing_pass_event, max_age_days=30."
+  ],
+  "generated_at_utc": "2026-02-17T22:34:40.228500+00:00",
+  "passed": false,
+  "warnings": [
+    "RATE_LIMIT_ENABLED is false in production expectation.",
+    "USE_REDIS is false; rate-limit and queue protections may be degraded.",
+    "ALERTMANAGER_PAGER_WEBHOOK_URL is not present in environment for this audit process.",
+    "ALERTMANAGER_MODEL_ONCALL_WEBHOOK_URL is not present in environment for this audit process.",
+    "ALERTMANAGER_PLATFORM_ONCALL_WEBHOOK_URL is not present in environment for this audit process.",
+    "ALERTMANAGER_TICKET_WEBHOOK_URL is not present in environment for this audit process."
+  ]
+}

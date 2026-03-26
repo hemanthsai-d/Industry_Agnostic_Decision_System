@@ -1,0 +1,25 @@
+{
+  "base_url": "http://127.0.0.1:8000",
+  "concurrency": 5,
+  "duration_seconds": 30,
+  "errors": [],
+  "generated_at_utc": "2026-02-18T00:22:34.144598+00:00",
+  "mode": "load",
+  "passed": true,
+  "summary": {
+    "error_rate": 0.0,
+    "mean_latency_ms": 64.63,
+    "p50_latency_ms": 55.5,
+    "p95_latency_ms": 101.78,
+    "status_counts": {
+      "200": 2319
+    },
+    "success_requests": 2319,
+    "total_requests": 2319,
+    "transport_errors_sample": []
+  },
+  "thresholds": {
+    "max_error_rate": 0.02,
+    "max_p95_latency_ms": 1200.0
+  }
+}

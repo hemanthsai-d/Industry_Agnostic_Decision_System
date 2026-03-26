@@ -1,0 +1,62 @@
+{
+  "generated_at_utc": "2026-02-17T00:00:00Z",
+  "teams": {
+    "platform_oncall": {
+      "primary": [
+        {
+          "name": "Platform Primary",
+          "email": "platform-primary@example.com",
+          "phone": "+1-555-0100",
+          "timezone": "America/Los_Angeles"
+        }
+      ],
+      "backup": [
+        {
+          "name": "Platform Backup",
+          "email": "platform-backup@example.com",
+          "phone": "+1-555-0101",
+          "timezone": "America/Los_Angeles"
+        }
+      ]
+    },
+    "model_oncall": {
+      "primary": [
+        {
+          "name": "Model Primary",
+          "email": "model-primary@example.com",
+          "phone": "+1-555-0102",
+          "timezone": "America/Los_Angeles"
+        }
+      ],
+      "backup": [
+        {
+          "name": "Model Backup",
+          "email": "model-backup@example.com",
+          "phone": "+1-555-0103",
+          "timezone": "America/Los_Angeles"
+        }
+      ]
+    }
+  },
+  "escalation_policy": [
+    {
+      "after_minutes": 5,
+      "targets": [
+        "backup_oncall"
+      ]
+    },
+    {
+      "after_minutes": 15,
+      "targets": [
+        "incident_commander",
+        "engineering_manager"
+      ]
+    },
+    {
+      "after_minutes": 30,
+      "targets": [
+        "product_ops_leadership"
+      ]
+    }
+  ]
+}

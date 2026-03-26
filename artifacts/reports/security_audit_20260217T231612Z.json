@@ -1,0 +1,58 @@
+{
+  "control_recency": [
+    {
+      "age_days": 0,
+      "control_type": "secret_rotation",
+      "evidence_uri": "https://ops.example.net/secret/1",
+      "max_age_days": 90,
+      "performed_at": "2026-02-17T23:16:10.818272+00:00",
+      "performed_by": "hemanth",
+      "status": "ok"
+    },
+    {
+      "age_days": 0,
+      "control_type": "access_review",
+      "evidence_uri": "https://ops.example.net/access/1",
+      "max_age_days": 90,
+      "performed_at": "2026-02-17T23:16:11.053216+00:00",
+      "performed_by": "hemanth",
+      "status": "ok"
+    },
+    {
+      "age_days": 0,
+      "control_type": "oncall_schedule_audit",
+      "evidence_uri": "ops/oncall.production.json",
+      "max_age_days": 30,
+      "performed_at": "2026-02-17T23:16:09.754090+00:00",
+      "performed_by": "hemanth",
+      "status": "ok"
+    },
+    {
+      "age_days": 0,
+      "control_type": "incident_endpoint_verification",
+      "evidence_uri": "artifacts/reports/incident_endpoint_verify_20260217T231610Z.md",
+      "max_age_days": 30,
+      "performed_at": "2026-02-17T23:16:10.348013+00:00",
+      "performed_by": "hemanth",
+      "status": "ok"
+    }
+  ],
+  "environment": {
+    "app_env": "local",
+    "auth_enabled": false,
+    "rate_limit_enabled": false,
+    "use_postgres": true,
+    "use_redis": false
+  },
+  "errors": [
+    "APP_ENV must be production/prod.",
+    "AUTH_ENABLED must be true.",
+    "JWT_SECRET_KEY is insecure/default."
+  ],
+  "generated_at_utc": "2026-02-17T23:16:12.198587+00:00",
+  "passed": false,
+  "warnings": [
+    "RATE_LIMIT_ENABLED is false in production expectation.",
+    "USE_REDIS is false; rate-limit and queue protections may be degraded."
+  ]
+}

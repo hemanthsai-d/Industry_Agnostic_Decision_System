@@ -1,0 +1,21 @@
+{
+  "model_type": "linear_bow_binary_v1",
+  "version": "1.0.0",
+  "bias": -2.1,
+  "route_uncertainty_weight": 1.2,
+  "evidence_gap_weight": 0.7,
+  "long_word_ratio_weight": 0.4,
+  "token_weights": {
+    "fraud": 1.7,
+    "breach": 1.7,
+    "legal": 1.5,
+    "lawsuit": 1.6,
+    "chargeback": 1.3,
+    "security": 1.2,
+    "incident": 1.0,
+    "threat": 1.0,
+    "urgent": 0.5,
+    "escalate": 0.8,
+    "complaint": 0.4
+  }
+}

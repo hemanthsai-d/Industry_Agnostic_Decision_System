@@ -1,0 +1,7 @@
+{
+  "method": "platt_scaling",
+  "a": 1.05,
+  "b": -0.02,
+  "min_probability": 0.02,
+  "max_probability": 0.98
+}

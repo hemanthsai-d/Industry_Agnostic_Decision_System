@@ -1,0 +1,76 @@
+{
+  "blocking_reasons": [
+    "insufficient_stable_canary_window",
+    "drift_alerts_or_missing_drift_rows",
+    "labeling_integrity_not_met",
+    "canary_progression_not_complete_to_100",
+    "rollback_drill_not_recorded",
+    "calibration_requirements_not_met"
+  ],
+  "calibration": {
+    "calibration_age_days": null,
+    "latest_by_scope": {},
+    "latest_calibration_at": null,
+    "max_calibration_age_days": 7,
+    "min_calibration_samples": 200
+  },
+  "checks": {
+    "calibration_passed": false,
+    "canary_passed": false,
+    "drift_passed": false,
+    "labeling_passed": false,
+    "overall_passed": false,
+    "quality_passed": false,
+    "rollback_drill_passed": false,
+    "slo_passed": true
+  },
+  "drift": {
+    "alert_rows": 0,
+    "rows": 0
+  },
+  "gates": {
+    "max_abstain_rate": 0.35,
+    "max_ece": 0.15,
+    "min_escalation_recall": 0.7,
+    "min_route_accuracy": 0.75,
+    "min_sample_size": 200
+  },
+  "generated_at_utc": "2026-02-17T23:33:19.106192+00:00",
+  "labeling": {
+    "labeled_count_in_quality_window": 0,
+    "min_ground_truth_required": 50,
+    "missing_closed_without_outcome": 0
+  },
+  "quality_daily": [],
+  "rollout": {
+    "canary_started_eval_date": null,
+    "current_canary_percent": 0,
+    "full_rollout_eval_date": null,
+    "promoted_targets": [],
+    "recent_events": [],
+    "required_stage_sequence": [
+      5,
+      25,
+      50,
+      100
+    ]
+  },
+  "scope": {
+    "model_variant": "challenger",
+    "section": null,
+    "tenant_id": null
+  },
+  "slo": {
+    "breached_alerts": [],
+    "query_error": "",
+    "skipped": false
+  },
+  "window": {
+    "end_date": "2026-02-16",
+    "min_daily_samples": 200,
+    "quality_start_date": "2026-02-03",
+    "stable_days_observed": 0,
+    "stable_days_required": 14,
+    "start_date": "2026-01-20"
+  }
+}

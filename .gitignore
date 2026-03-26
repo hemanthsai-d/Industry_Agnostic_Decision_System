@@ -1,0 +1,15 @@
+.venv/
+__pycache__/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.env
+observability/alertmanager/alertmanager.prod.yml
+ops/oncall.production.json
+*.pyc
+*.pyo
+*.pyd
+*.sqlite3
+dist/
+*.DS_Store
+.DS_Store

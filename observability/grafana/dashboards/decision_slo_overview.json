@@ -1,0 +1,219 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": { "type": "grafana", "uid": "-- Grafana --" },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 },
+      "id": 100,
+      "title": "SLO — Latency & Throughput",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "s" }, "overrides": [] },
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 1 },
+      "id": 1,
+      "options": { "legend": { "displayMode": "table", "placement": "bottom" }, "tooltip": { "mode": "multi" } },
+      "targets": [
+        { "expr": "decision_api:latency_p50_5m", "legendFormat": "p50", "refId": "A" },
+        { "expr": "decision_api:latency_p95_5m", "legendFormat": "p95", "refId": "B" },
+        { "expr": "decision_api:latency_p99_5m", "legendFormat": "p99", "refId": "C" }
+      ],
+      "title": "HTTP Latency (p50 / p95 / p99)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "s" }, "overrides": [] },
+      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 1 },
+      "id": 2,
+      "options": { "legend": { "displayMode": "table", "placement": "bottom" }, "tooltip": { "mode": "multi" } },
+      "targets": [
+        { "expr": "decision_api:pipeline_p50_5m", "legendFormat": "pipeline p50", "refId": "A" },
+        { "expr": "decision_api:pipeline_p95_5m", "legendFormat": "pipeline p95", "refId": "B" },
+        { "expr": "decision_api:pipeline_p99_5m", "legendFormat": "pipeline p99", "refId": "C" }
+      ],
+      "title": "Pipeline E2E Latency (p50 / p95 / p99)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "s" }, "overrides": [] },
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 1 },
+      "id": 3,
+      "options": { "legend": { "displayMode": "table", "placement": "bottom" }, "tooltip": { "mode": "multi" } },
+      "targets": [
+        { "expr": "decision_api:stage_latency_p95_5m{stage=\"retrieval\"}", "legendFormat": "retrieval p95", "refId": "A" },
+        { "expr": "decision_api:stage_latency_p95_5m{stage=\"routing\"}", "legendFormat": "routing p95", "refId": "B" },
+        { "expr": "decision_api:stage_latency_p95_5m{stage=\"generation\"}", "legendFormat": "generation p95", "refId": "C" },
+        { "expr": "decision_api:stage_latency_p95_5m{stage=\"injection_scan\"}", "legendFormat": "injection_scan p95", "refId": "D" },
+        { "expr": "decision_api:stage_latency_p95_5m{stage=\"pii_redaction\"}", "legendFormat": "pii_redaction p95", "refId": "E" }
+      ],
+      "title": "Pipeline Stage Latency (p95)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "reqps" }, "overrides": [] },
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 9 },
+      "id": 4,
+      "options": { "legend": { "displayMode": "table", "placement": "bottom" }, "tooltip": { "mode": "multi" } },
+      "targets": [
+        { "expr": "decision_api:throughput_rps_5m", "legendFormat": "decide req/s (5m)", "refId": "A" },
+        { "expr": "decision_api:throughput_rps_1h", "legendFormat": "decide req/s (1h avg)", "refId": "B" },
+        { "expr": "assist_inflight_requests{service=\"decision-api\"}", "legendFormat": "in-flight", "refId": "C" }
+      ],
+      "title": "Throughput & In-flight",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": { "defaults": { "min": 0, "max": 100, "unit": "percent" }, "overrides": [] },
+      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 9 },
+      "id": 5,
+      "options": { "legend": { "displayMode": "table", "placement": "bottom" } },
+      "targets": [
+        { "expr": "100 * decision_api:error_rate_5m", "legendFormat": "decision-api 5xx %", "refId": "A" },
+        { "expr": "100 * sum(rate(assist_http_requests_total{service=\"decision-model-serving\",status=~\"5..\"}[5m])) / clamp_min(sum(rate(assist_http_requests_total{service=\"decision-model-serving\"}[5m])), 0.001)", "legendFormat": "model-serving 5xx %", "refId": "B" }
+      ],
+      "title": "Error Rate (5m)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "currencyUSD", "decimals": 6 }, "overrides": [] },
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 9 },
+      "id": 6,
+      "options": { "legend": { "displayMode": "table", "placement": "bottom" } },
+      "targets": [
+        { "expr": "decision_api:cost_per_request_mean_1h", "legendFormat": "mean cost/req (1h)", "refId": "A" }
+      ],
+      "title": "Cost per Request (USD)",
+      "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 17 },
+      "id": 101,
+      "title": "Model Evaluation & Decision Outcomes",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "reqps" }, "overrides": [] },
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 18 },
+      "id": 7,
+      "options": { "legend": { "displayMode": "table", "placement": "bottom" } },
+      "targets": [
+        { "expr": "sum(rate(assist_decisions_total{service=\"decision-api\"}[5m])) by (decision)", "legendFormat": "{{decision}}", "refId": "A" }
+      ],
+      "title": "Decision Outcomes / sec",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": { "defaults": { "min": 0, "max": 1, "unit": "percentunit" }, "overrides": [] },
+      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 18 },
+      "id": 8,
+      "options": { "legend": { "displayMode": "table", "placement": "bottom" } },
+      "targets": [
+        { "expr": "assist_routing_accuracy{service=\"decision-api\"}", "legendFormat": "routing accuracy ({{model_variant}})", "refId": "A" },
+        { "expr": "assist_calibration_ece{service=\"decision-api\"}", "legendFormat": "ECE ({{model_variant}})", "refId": "B" },
+        { "expr": "decision_api:abstain_rate_1h", "legendFormat": "abstain rate (1h)", "refId": "C" }
+      ],
+      "title": "Routing Accuracy / ECE / Abstain Rate",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": { "defaults": { "min": 0, "max": 1, "unit": "percentunit" }, "overrides": [] },
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 18 },
+      "id": 9,
+      "options": { "legend": { "displayMode": "table", "placement": "bottom" } },
+      "targets": [
+        { "expr": "decision_api:confidence_mean_1h", "legendFormat": "mean confidence (1h)", "refId": "A" },
+        { "expr": "decision_api:confidence_mean_24h", "legendFormat": "mean confidence (24h)", "refId": "B" }
+      ],
+      "title": "Confidence Distribution",
+      "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 26 },
+      "id": 102,
+      "title": "RAG Quality & Safety",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": { "defaults": { "min": 0, "max": 1, "unit": "percentunit" }, "overrides": [] },
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 27 },
+      "id": 10,
+      "options": { "legend": { "displayMode": "table", "placement": "bottom" } },
+      "targets": [
+        { "expr": "decision_api:faithfulness_mean_1h", "legendFormat": "faithfulness (1h)", "refId": "A" },
+        { "expr": "decision_api:hallucination_rate_mean_1h", "legendFormat": "hallucination ratio (1h)", "refId": "B" },
+        { "expr": "decision_api:citation_coverage_mean_1h", "legendFormat": "citation coverage (1h)", "refId": "C" }
+      ],
+      "title": "RAG Quality (Faithfulness / Hallucination / Citations)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": { "defaults": { "min": 0, "max": 1, "unit": "percentunit" }, "overrides": [] },
+      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 27 },
+      "id": 11,
+      "options": { "legend": { "displayMode": "table", "placement": "bottom" } },
+      "targets": [
+        { "expr": "decision_api:evidence_score_mean_1h", "legendFormat": "mean evidence score (1h)", "refId": "A" },
+        { "expr": "decision_api:escalation_rate_1h", "legendFormat": "escalation rate (1h)", "refId": "B" },
+        { "expr": "decision_api:injection_block_rate_1h", "legendFormat": "injection block rate (1h)", "refId": "C" }
+      ],
+      "title": "Evidence Quality & Safety Rates",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "short" }, "overrides": [] },
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 27 },
+      "id": 12,
+      "options": { "legend": { "displayMode": "table", "placement": "bottom" } },
+      "targets": [
+        { "expr": "assist_circuit_breaker_state{service=\"decision-api\"}", "legendFormat": "CB state ({{target}})", "refId": "A" },
+        { "expr": "sum(rate(assist_circuit_breaker_trips_total[5m])) by (target)", "legendFormat": "trips/s ({{target}})", "refId": "B" }
+      ],
+      "title": "Circuit Breaker State & Trips",
+      "type": "timeseries"
+    }
+  ],
+  "refresh": "30s",
+  "schemaVersion": 39,
+  "style": "dark",
+  "tags": [ "slo", "decision-platform", "observability", "latency", "rag-quality" ],
+  "templating": { "list": [] },
+  "time": { "from": "now-6h", "to": "now" },
+  "timepicker": {},
+  "timezone": "",
+  "title": "Decision Platform SLO Overview",
+  "uid": "decision-slo-overview",
+  "version": 2,
+  "weekStart": ""
+}

@@ -1,0 +1,36 @@
+# kind (Kubernetes in Docker) cluster configuration
+# For local development of the decision platform.
+#
+# Usage:
+#   kind create cluster --config infra/kind-cluster.yaml --name decision-platform
+#
+# This creates a single-node cluster with:
+#   - An extra port mapping so NodePort 30080 is reachable on localhost:30080
+#   - An extra port mapping for model-server NodePort on localhost:30090
+#   - Local storage provisioner for PVCs
+
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+name: decision-platform
+
+nodes:
+  - role: control-plane
+    extraPortMappings:
+      # Decision API — NodePort 30080 → localhost:30080
+      - containerPort: 30080
+        hostPort: 30080
+        protocol: TCP
+      # Model Server — NodePort 30090 → localhost:30090
+      - containerPort: 30090
+        hostPort: 30090
+        protocol: TCP
+      # PostgreSQL — NodePort 30432 → localhost:30432 (optional direct access)
+      - containerPort: 30432
+        hostPort: 30432
+        protocol: TCP
+    kubeadmConfigPatches:
+      - |
+        kind: InitConfiguration
+        nodeRegistration:
+          kubeletExtraArgs:
+            node-labels: "ingress-ready=true"

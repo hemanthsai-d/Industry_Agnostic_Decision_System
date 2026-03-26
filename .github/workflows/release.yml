@@ -1,0 +1,214 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version tag to publish (example: v1.0.0)'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  verify:
+    name: Verify Release Candidate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+          cache: pip
+          cache-dependency-path: |
+            requirements.txt
+            requirements-optional.txt
+
+      - name: Install Dependencies
+        run: python -m pip install -r requirements.txt
+
+      - name: Run Static Checks
+        run: python -m scripts.static_check app model_server mcp_server scripts tests
+
+      - name: Production Preflight Sanity
+        env:
+          APP_ENV: production
+          AUTH_ENABLED: 'true'
+          JWT_SECRET_KEY: release-production-secret-key-with-minimum-length
+          USE_POSTGRES: 'true'
+          POSTGRES_DSN: postgresql+psycopg://app_user:app_password@db:5432/decision_db
+          EMBEDDING_BACKEND: sentence-transformer
+          RATE_LIMIT_ENABLED: 'true'
+          USE_REDIS: 'true'
+          PII_REDACTION_ENABLED: 'true'
+          METRICS_ENABLED: 'true'
+        run: python -m scripts.preflight_check --env production --skip-db
+
+      - name: Run Test Suite
+        run: python -m pytest -q
+
+  package:
+    name: Build Release Package
+    runs-on: ubuntu-latest
+    needs:
+      - verify
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Resolve Version
+        id: version
+        env:
+          INPUT_VERSION: ${{ github.event.inputs.version }}
+        run: |
+          if [[ -n "${INPUT_VERSION:-}" ]]; then
+            VERSION="$INPUT_VERSION"
+          else
+            VERSION="${GITHUB_REF_NAME}"
+          fi
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+
+      - name: Build Package
+        run: |
+          chmod +x scripts/package_release.sh
+          ./scripts/package_release.sh "${{ steps.version.outputs.version }}"
+
+      - name: Upload Package Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-package
+          path: |
+            dist/decision-platform-${{ steps.version.outputs.version }}.tar.gz
+            dist/decision-platform-${{ steps.version.outputs.version }}.sha256
+
+  docker-publish:
+    name: Publish Docker Images
+    needs:
+      - package
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - image_name: decision-platform-api
+            dockerfile: Dockerfile
+            context: .
+          - image_name: decision-model-serving
+            dockerfile: model_server/Dockerfile
+            context: .
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Lowercase owner
+        id: owner
+        run: echo "name=${GITHUB_REPOSITORY_OWNER,,}" >> "$GITHUB_OUTPUT"
+
+      - name: Generate GHCR Image Metadata
+        id: meta_ghcr
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ steps.owner.outputs.name }}/${{ matrix.image_name }}
+          tags: |
+            type=raw,value=${{ needs.package.outputs.version }}
+            type=raw,value=latest,enable=${{ startsWith(needs.package.outputs.version, 'v') }}
+
+      - name: Build and Push GHCR Image
+        uses: docker/build-push-action@v6
+        with:
+          context: ${{ matrix.context }}
+          file: ${{ matrix.dockerfile }}
+          platforms: linux/amd64
+          push: true
+          tags: ${{ steps.meta_ghcr.outputs.tags }}
+          labels: ${{ steps.meta_ghcr.outputs.labels }}
+
+      - name: Detect Docker Hub Credentials
+        id: dockerhub
+        env:
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+        run: |
+          if [[ -n "${DOCKERHUB_USERNAME}" && -n "${DOCKERHUB_TOKEN}" ]]; then
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Login to Docker Hub
+        if: steps.dockerhub.outputs.enabled == 'true'
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Generate Docker Hub Image Metadata
+        if: steps.dockerhub.outputs.enabled == 'true'
+        id: meta_dockerhub
+        uses: docker/metadata-action@v5
+        with:
+          images: docker.io/${{ secrets.DOCKERHUB_USERNAME }}/${{ matrix.image_name }}
+          tags: |
+            type=raw,value=${{ needs.package.outputs.version }}
+            type=raw,value=latest,enable=${{ startsWith(needs.package.outputs.version, 'v') }}
+
+      - name: Build and Push Docker Hub Image
+        if: steps.dockerhub.outputs.enabled == 'true'
+        uses: docker/build-push-action@v6
+        with:
+          context: ${{ matrix.context }}
+          file: ${{ matrix.dockerfile }}
+          platforms: linux/amd64
+          push: true
+          tags: ${{ steps.meta_dockerhub.outputs.tags }}
+          labels: ${{ steps.meta_dockerhub.outputs.labels }}
+
+      - name: Docker Hub Publish Skipped
+        if: steps.dockerhub.outputs.enabled != 'true'
+        run: echo "Skipping Docker Hub publish because DOCKERHUB_USERNAME/DOCKERHUB_TOKEN are not configured."
+
+  github-release:
+    name: Publish GitHub Release
+    if: github.event_name == 'push'
+    needs:
+      - package
+      - docker-publish
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download Package Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: release-package
+          path: dist
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          files: |
+            dist/*.tar.gz
+            dist/*.sha256

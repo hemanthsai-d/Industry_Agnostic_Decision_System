@@ -1,0 +1,144 @@
+{
+  "generated_at_utc": "2026-02-18T23:16:47.279887+00:00",
+  "window": {
+    "current_start": "2026-01-21",
+    "current_end": "2026-02-17",
+    "baseline_start": "2025-12-24",
+    "baseline_end": "2026-01-20"
+  },
+  "filters": {
+    "tenant_id": null,
+    "section": null,
+    "model_variant": "primary"
+  },
+  "rows": [
+    {
+      "kpi_name": "agent_weekly_active_usage_pct",
+      "comparator": "gte",
+      "target_value": 0.7,
+      "unit": "ratio",
+      "description": "Weekly active usage = active reviewers / active agents",
+      "actual_value": 0.8372093023255814,
+      "status": "pass",
+      "details": {
+        "active_agents_7d": 43,
+        "active_reviewers_7d": 36
+      }
+    },
+    {
+      "kpi_name": "assisted_coverage_pct",
+      "comparator": "gte",
+      "target_value": 0.8,
+      "unit": "ratio",
+      "description": "Assisted coverage = assisted eligible tickets / eligible tickets",
+      "actual_value": 6.121334100057505,
+      "status": "pass",
+      "details": {
+        "eligible_tickets": 3478,
+        "assisted_requests": 21290
+      }
+    },
+    {
+      "kpi_name": "ece",
+      "comparator": "lte",
+      "target_value": 0.1,
+      "unit": "ratio",
+      "description": "Expected Calibration Error",
+      "actual_value": 0.06556590816741222,
+      "status": "pass",
+      "details": {
+        "ece_bins": 3
+      }
+    },
+    {
+      "kpi_name": "escalation_precision_pct",
+      "comparator": "gte",
+      "target_value": 0.8,
+      "unit": "ratio",
+      "description": "Escalation precision for labeled decisions",
+      "actual_value": 0.8653986832479883,
+      "status": "pass",
+      "details": {
+        "predicted_escalations": 1367,
+        "true_positive_escalations": 1183
+      }
+    },
+    {
+      "kpi_name": "escalation_rate_reduction_pct",
+      "comparator": "gte",
+      "target_value": 0.2,
+      "unit": "ratio",
+      "description": "Escalation rate reduction vs baseline window",
+      "actual_value": 0.35021810368287004,
+      "status": "pass",
+      "details": {
+        "current_escalation_rate": 0.1894893674657998,
+        "baseline_escalation_rate": 0.29161995515695066
+      }
+    },
+    {
+      "kpi_name": "escalation_recall_pct",
+      "comparator": "gte",
+      "target_value": 0.75,
+      "unit": "ratio",
+      "description": "Escalation recall for labeled decisions",
+      "actual_value": 0.8456040028591851,
+      "status": "pass",
+      "details": {
+        "actual_escalations": 1399,
+        "true_positive_escalations": 1183
+      }
+    },
+    {
+      "kpi_name": "feedback_completeness_pct",
+      "comparator": "gte",
+      "target_value": 0.95,
+      "unit": "ratio",
+      "description": "Closed handoffs with reviewer outcomes",
+      "actual_value": 1.0,
+      "status": "pass",
+      "details": {
+        "closed_handoffs": 1730,
+        "closed_with_outcome": 1730
+      }
+    },
+    {
+      "kpi_name": "median_handling_time_reduction_pct",
+      "comparator": "gte",
+      "target_value": 0.25,
+      "unit": "ratio",
+      "description": "Median handling time reduction vs baseline",
+      "actual_value": 0.5737051792828686,
+      "status": "pass",
+      "details": {
+        "current_p50_seconds": 214,
+        "baseline_p50_seconds": 502
+      }
+    },
+    {
+      "kpi_name": "p90_handling_time_reduction_pct",
+      "comparator": "gte",
+      "target_value": 0.15,
+      "unit": "ratio",
+      "description": "P90 handling time reduction vs baseline",
+      "actual_value": 0.5608272506082725,
+      "status": "pass",
+      "details": {
+        "current_p90_seconds": 361,
+        "baseline_p90_seconds": 822
+      }
+    },
+    {
+      "kpi_name": "top1_route_accuracy_pct",
+      "comparator": "gte",
+      "target_value": 0.85,
+      "unit": "ratio",
+      "description": "Top-1 route accuracy for labeled decisions",
+      "actual_value": 0.8678044155492347,
+      "status": "pass",
+      "details": {
+        "labeled_samples": 7383
+      }
+    }
+  ]
+}

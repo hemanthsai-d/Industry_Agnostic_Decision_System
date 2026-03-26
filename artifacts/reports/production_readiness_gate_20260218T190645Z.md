@@ -1,0 +1,25 @@
+# Production Readiness Gate (PASS)
+
+- Generated at (UTC): 2026-02-18T19:06:45.331781+00:00
+- Scope tenant: __all__
+- Scope section: __all__
+
+## Gates
+- live_rollout_passed: True
+- business_kpi_passed: True
+- workload_feed_coverage_passed: True
+- label_coverage_passed: True
+- control_recency_passed: True
+- overall_passed: True
+
+## Blocking Reasons
+- none
+
+## Control Recency
+- incident_endpoint_verification: status=ok, age_days=0, max_age_days=30
+- oncall_schedule_audit: status=ok, age_days=0, max_age_days=30
+- secret_rotation: status=ok, age_days=0, max_age_days=90
+- access_review: status=ok, age_days=0, max_age_days=90
+- load_test: status=ok, age_days=0, max_age_days=30
+- soak_test: status=ok, age_days=0, max_age_days=30
+- failure_test: status=ok, age_days=0, max_age_days=30

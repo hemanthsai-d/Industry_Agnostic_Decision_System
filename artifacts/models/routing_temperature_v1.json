@@ -1,0 +1,6 @@
+{
+  "method": "temperature_scaling",
+  "temperature": 1.1,
+  "min_probability": 0.01,
+  "max_probability": 0.97
+}

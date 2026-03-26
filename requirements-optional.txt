@@ -1,0 +1,10 @@
+# Optional integrations for distributed events/workflows
+google-cloud-pubsub==2.28.0
+temporalio==1.8.0
+
+# Optional tracing stack
+opentelemetry-api>=1.24,<2
+opentelemetry-sdk>=1.24,<2
+opentelemetry-exporter-otlp-proto-grpc>=1.24,<2
+opentelemetry-instrumentation-fastapi>=0.45b0,<1
+opentelemetry-instrumentation-httpx>=0.45b0,<1

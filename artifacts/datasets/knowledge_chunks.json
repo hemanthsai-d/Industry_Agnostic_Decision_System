@@ -1,0 +1,137 @@
+[
+  {
+    "tenant_id": "org_demo",
+    "section": "billing",
+    "chunk_id": "billing_001",
+    "doc_id": "billing_sop_refunds",
+    "source": "internal_wiki",
+    "updated_at": "2025-12-09",
+    "text": "For duplicate charges, verify transaction IDs and issue refund within 3 business days."
+  },
+  {
+    "tenant_id": "org_demo",
+    "section": "billing",
+    "chunk_id": "billing_002",
+    "doc_id": "billing_chargeback_policy",
+    "source": "internal_wiki",
+    "updated_at": "2025-11-17",
+    "text": "Escalate to payments risk when fraud indicators are present or customer disputes multiple charges."
+  },
+  {
+    "tenant_id": "org_demo",
+    "section": "accounts",
+    "chunk_id": "acct_001",
+    "doc_id": "account_access_runbook",
+    "source": "runbook",
+    "updated_at": "2025-10-02",
+    "text": "For locked accounts, verify identity and send password reset link after successful verification."
+  },
+  {
+    "tenant_id": "org_demo",
+    "section": "shipping",
+    "chunk_id": "ship_001",
+    "doc_id": "shipping_delay_playbook",
+    "source": "runbook",
+    "updated_at": "2025-08-30",
+    "text": "For delayed shipments, check carrier scan events and offer replacement if delay exceeds SLA by 5 days."
+  },
+  {
+    "tenant_id": "org_demo",
+    "section": "orders",
+    "chunk_id": "order_001",
+    "doc_id": "order_status_lookup",
+    "source": "internal_wiki",
+    "updated_at": "2025-12-01",
+    "text": "To check order status, ask the customer for their order number. Look up in OMS and relay current tracking state, estimated delivery date, and carrier name."
+  },
+  {
+    "tenant_id": "org_demo",
+    "section": "orders",
+    "chunk_id": "order_002",
+    "doc_id": "order_cancellation_policy",
+    "source": "policy_doc",
+    "updated_at": "2025-11-20",
+    "text": "Orders may be cancelled within 1 hour of placement if not yet shipped. After shipment, direct customer to return process. Non-cancellable items include personalised goods."
+  },
+  {
+    "tenant_id": "org_demo",
+    "section": "payments",
+    "chunk_id": "pay_001",
+    "doc_id": "payment_method_update",
+    "source": "runbook",
+    "updated_at": "2025-12-05",
+    "text": "To update payment method, navigate to Account > Payment Methods. Customers can add credit/debit cards, PayPal, or bank accounts. Changes apply to next billing cycle."
+  },
+  {
+    "tenant_id": "org_demo",
+    "section": "payments",
+    "chunk_id": "pay_002",
+    "doc_id": "invoice_request_process",
+    "source": "policy_doc",
+    "updated_at": "2025-11-15",
+    "text": "Invoices are generated automatically after payment. Customers can download invoices from Account > Order History. For missing invoices, regenerate from admin panel within 24h."
+  },
+  {
+    "tenant_id": "org_demo",
+    "section": "refunds",
+    "chunk_id": "refund_001",
+    "doc_id": "refund_processing_sla",
+    "source": "policy_doc",
+    "updated_at": "2025-12-08",
+    "text": "Refunds are processed within 5-7 business days to the original payment method. Partial refunds are available for partially used subscriptions or damaged items."
+  },
+  {
+    "tenant_id": "org_demo",
+    "section": "shipping",
+    "chunk_id": "ship_002",
+    "doc_id": "shipping_address_change",
+    "source": "runbook",
+    "updated_at": "2025-11-25",
+    "text": "Shipping address can be changed before order enters 'shipped' status. After shipment, a return-and-reship is required. Verify new address against postal validation."
+  },
+  {
+    "tenant_id": "org_demo",
+    "section": "accounts",
+    "chunk_id": "acct_002",
+    "doc_id": "account_deletion_process",
+    "source": "policy_doc",
+    "updated_at": "2025-10-15",
+    "text": "Account deletion requests require identity verification and a 30-day cooling period. Active subscriptions must be cancelled first. Data is purged per GDPR after cooling period."
+  },
+  {
+    "tenant_id": "org_demo",
+    "section": "subscriptions",
+    "chunk_id": "sub_001",
+    "doc_id": "subscription_cancellation",
+    "source": "policy_doc",
+    "updated_at": "2025-12-03",
+    "text": "Subscriptions can be cancelled anytime. Cancellation fee applies to annual plans cancelled before 6 months. Monthly plans have no fee. Access continues until end of billing period."
+  },
+  {
+    "tenant_id": "org_demo",
+    "section": "feedback",
+    "chunk_id": "fb_001",
+    "doc_id": "customer_complaint_handling",
+    "source": "runbook",
+    "updated_at": "2025-11-10",
+    "text": "For customer complaints, acknowledge the issue, apologise sincerely, and offer a concrete resolution. Escalate to manager if customer requests it or complaint involves safety."
+  },
+  {
+    "tenant_id": "org_demo",
+    "section": "newsletter",
+    "chunk_id": "news_001",
+    "doc_id": "newsletter_preferences",
+    "source": "internal_wiki",
+    "updated_at": "2025-10-20",
+    "text": "Newsletter preferences are managed under Account > Communication Preferences. Customers can opt-in/out of marketing, product updates, and promotional emails independently."
+  },
+  {
+    "tenant_id": "org_demo",
+    "section": "technical",
+    "chunk_id": "tech_001",
+    "doc_id": "technical_troubleshooting",
+    "source": "runbook",
+    "updated_at": "2025-12-07",
+    "text": "For login issues: clear browser cache, try incognito mode, reset password. For app crashes: update to latest version, reinstall if needed. Collect device info and OS version for bug reports."
+  }
+]

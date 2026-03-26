@@ -1,0 +1,509 @@
+{
+  "blocking_reasons": [],
+  "calibration": {
+    "calibration_age_days": 2,
+    "latest_by_scope": {
+      "escalation_platt": {
+        "created_at": "2026-02-16T00:00:00+00:00",
+        "sample_size": 455
+      },
+      "routing_temperature": {
+        "created_at": "2026-02-16T00:00:00+00:00",
+        "sample_size": 509
+      }
+    },
+    "latest_calibration_at": "2026-02-16T00:00:00+00:00",
+    "max_calibration_age_days": 7,
+    "min_calibration_samples": 200
+  },
+  "checks": {
+    "calibration_passed": true,
+    "canary_passed": true,
+    "drift_passed": true,
+    "labeling_passed": true,
+    "overall_passed": true,
+    "quality_passed": true,
+    "rollback_drill_passed": true,
+    "slo_passed": true
+  },
+  "drift": {
+    "alert_rows": 0,
+    "rows": 44
+  },
+  "gates": {
+    "max_abstain_rate": 0.35,
+    "max_ece": 0.15,
+    "min_escalation_recall": 0.7,
+    "min_route_accuracy": 0.75,
+    "min_sample_size": 200
+  },
+  "generated_at_utc": "2026-02-19T17:47:02.685674+00:00",
+  "labeling": {
+    "labeled_count_in_quality_window": 2085,
+    "min_ground_truth_required": 50,
+    "missing_closed_without_outcome": 0
+  },
+  "quality_daily": [
+    {
+      "abstain_rate": 0.11506276150627615,
+      "ece": 0.06475460251046018,
+      "escalation_recall": 1.0,
+      "eval_date": "2026-01-22",
+      "passed": true,
+      "reasons": [],
+      "route_accuracy": 0.8661087866108786,
+      "sample_size": 478
+    },
+    {
+      "abstain_rate": 0.10897435897435898,
+      "ece": 0.05518333333333333,
+      "escalation_recall": 1.0,
+      "eval_date": "2026-01-23",
+      "passed": true,
+      "reasons": [],
+      "route_accuracy": 0.8589743589743589,
+      "sample_size": 468
+    },
+    {
+      "abstain_rate": 0.10865191146881288,
+      "ece": 0.06721670020120722,
+      "escalation_recall": 1.0,
+      "eval_date": "2026-01-24",
+      "passed": true,
+      "reasons": [],
+      "route_accuracy": 0.869215291750503,
+      "sample_size": 497
+    },
+    {
+      "abstain_rate": 0.10882956878850103,
+      "ece": 0.08643737166324453,
+      "escalation_recall": 1.0,
+      "eval_date": "2026-01-25",
+      "passed": true,
+      "reasons": [],
+      "route_accuracy": 0.8685831622176592,
+      "sample_size": 487
+    },
+    {
+      "abstain_rate": 0.09073359073359073,
+      "ece": 0.10467316602316627,
+      "escalation_recall": 1.0,
+      "eval_date": "2026-01-26",
+      "passed": true,
+      "reasons": [],
+      "route_accuracy": 0.8764478764478765,
+      "sample_size": 518
+    },
+    {
+      "abstain_rate": 0.07979626485568761,
+      "ece": 0.06821816638370108,
+      "escalation_recall": 1.0,
+      "eval_date": "2026-01-27",
+      "passed": true,
+      "reasons": [],
+      "route_accuracy": 0.8743633276740238,
+      "sample_size": 589
+    },
+    {
+      "abstain_rate": 0.07733812949640288,
+      "ece": 0.026428776978417466,
+      "escalation_recall": 1.0,
+      "eval_date": "2026-01-28",
+      "passed": true,
+      "reasons": [],
+      "route_accuracy": 0.841726618705036,
+      "sample_size": 556
+    },
+    {
+      "abstain_rate": 0.09172661870503597,
+      "ece": 0.05041366906474816,
+      "escalation_recall": 1.0,
+      "eval_date": "2026-01-29",
+      "passed": true,
+      "reasons": [],
+      "route_accuracy": 0.841726618705036,
+      "sample_size": 556
+    },
+    {
+      "abstain_rate": 0.09265734265734266,
+      "ece": 0.06910524475524481,
+      "escalation_recall": 1.0,
+      "eval_date": "2026-01-30",
+      "passed": true,
+      "reasons": [],
+      "route_accuracy": 0.8548951048951049,
+      "sample_size": 572
+    },
+    {
+      "abstain_rate": 0.10112359550561797,
+      "ece": 0.05668558052434477,
+      "escalation_recall": 1.0,
+      "eval_date": "2026-01-31",
+      "passed": true,
+      "reasons": [],
+      "route_accuracy": 0.8576779026217228,
+      "sample_size": 534
+    },
+    {
+      "abstain_rate": 0.11338289962825279,
+      "ece": 0.06328141263940507,
+      "escalation_recall": 1.0,
+      "eval_date": "2026-02-01",
+      "passed": true,
+      "reasons": [],
+      "route_accuracy": 0.8587360594795539,
+      "sample_size": 538
+    },
+    {
+      "abstain_rate": 0.11690647482014388,
+      "ece": 0.0719455035971227,
+      "escalation_recall": 1.0,
+      "eval_date": "2026-02-02",
+      "passed": true,
+      "reasons": [],
+      "route_accuracy": 0.8597122302158273,
+      "sample_size": 556
+    },
+    {
+      "abstain_rate": 0.10526315789473684,
+      "ece": 0.07525068226120883,
+      "escalation_recall": 1.0,
+      "eval_date": "2026-02-03",
+      "passed": true,
+      "reasons": [],
+      "route_accuracy": 0.8791423001949318,
+      "sample_size": 513
+    },
+    {
+      "abstain_rate": 0.07649253731343283,
+      "ece": 0.06819104477611984,
+      "escalation_recall": 1.0,
+      "eval_date": "2026-02-04",
+      "passed": true,
+      "reasons": [],
+      "route_accuracy": 0.8805970149253731,
+      "sample_size": 536
+    },
+    {
+      "abstain_rate": 0.07971014492753623,
+      "ece": 0.04713876811594164,
+      "escalation_recall": 1.0,
+      "eval_date": "2026-02-05",
+      "passed": true,
+      "reasons": [],
+      "route_accuracy": 0.8532608695652174,
+      "sample_size": 552
+    },
+    {
+      "abstain_rate": 0.09259259259259259,
+      "ece": 0.0605345679012348,
+      "escalation_recall": 1.0,
+      "eval_date": "2026-02-06",
+      "passed": true,
+      "reasons": [],
+      "route_accuracy": 0.8374485596707819,
+      "sample_size": 486
+    },
+    {
+      "abstain_rate": 0.10040983606557377,
+      "ece": 0.05786577868852445,
+      "escalation_recall": 1.0,
+      "eval_date": "2026-02-07",
+      "passed": true,
+      "reasons": [],
+      "route_accuracy": 0.8360655737704918,
+      "sample_size": 488
+    },
+    {
+      "abstain_rate": 0.10371819960861056,
+      "ece": 0.06602367906066539,
+      "escalation_recall": 1.0,
+      "eval_date": "2026-02-08",
+      "passed": true,
+      "reasons": [],
+      "route_accuracy": 0.8532289628180039,
+      "sample_size": 511
+    },
+    {
+      "abstain_rate": 0.09108910891089109,
+      "ece": 0.07251722772277257,
+      "escalation_recall": 1.0,
+      "eval_date": "2026-02-09",
+      "passed": true,
+      "reasons": [],
+      "route_accuracy": 0.8772277227722772,
+      "sample_size": 505
+    },
+    {
+      "abstain_rate": 0.10424710424710425,
+      "ece": 0.06968571428571416,
+      "escalation_recall": 1.0,
+      "eval_date": "2026-02-10",
+      "passed": true,
+      "reasons": [],
+      "route_accuracy": 0.8803088803088803,
+      "sample_size": 518
+    },
+    {
+      "abstain_rate": 0.10036496350364964,
+      "ece": 0.05538010948905118,
+      "escalation_recall": 1.0,
+      "eval_date": "2026-02-11",
+      "passed": true,
+      "reasons": [],
+      "route_accuracy": 0.8485401459854015,
+      "sample_size": 548
+    },
+    {
+      "abstain_rate": 0.08159392789373814,
+      "ece": 0.053185009487665955,
+      "escalation_recall": 1.0,
+      "eval_date": "2026-02-12",
+      "passed": true,
+      "reasons": [],
+      "route_accuracy": 0.8368121442125237,
+      "sample_size": 527
+    },
+    {
+      "abstain_rate": 0.08008213552361396,
+      "ece": 0.05237063655030797,
+      "escalation_recall": 1.0,
+      "eval_date": "2026-02-13",
+      "passed": true,
+      "reasons": [],
+      "route_accuracy": 0.8706365503080082,
+      "sample_size": 487
+    },
+    {
+      "abstain_rate": 0.07910750507099391,
+      "ece": 0.06480851926977671,
+      "escalation_recall": 1.0,
+      "eval_date": "2026-02-14",
+      "passed": true,
+      "reasons": [],
+      "route_accuracy": 0.8864097363083164,
+      "sample_size": 493
+    },
+    {
+      "abstain_rate": 0.08664259927797834,
+      "ece": 0.07556967509025304,
+      "escalation_recall": 1.0,
+      "eval_date": "2026-02-15",
+      "passed": true,
+      "reasons": [],
+      "route_accuracy": 0.8664259927797834,
+      "sample_size": 554
+    },
+    {
+      "abstain_rate": 0.0918918918918919,
+      "ece": 0.07481459459459473,
+      "escalation_recall": 1.0,
+      "eval_date": "2026-02-16",
+      "passed": true,
+      "reasons": [],
+      "route_accuracy": 0.863063063063063,
+      "sample_size": 555
+    },
+    {
+      "abstain_rate": 0.10396975425330812,
+      "ece": 0.07402816635160683,
+      "escalation_recall": 1.0,
+      "eval_date": "2026-02-17",
+      "passed": true,
+      "reasons": [],
+      "route_accuracy": 0.8695652173913043,
+      "sample_size": 529
+    },
+    {
+      "abstain_rate": 0.10218978102189781,
+      "ece": 0.069436496350365,
+      "escalation_recall": 1.0,
+      "eval_date": "2026-02-18",
+      "passed": true,
+      "reasons": [],
+      "route_accuracy": 0.8613138686131386,
+      "sample_size": 274
+    }
+  ],
+  "rollout": {
+    "canary_started_eval_date": "2026-01-24",
+    "current_canary_percent": 100,
+    "full_rollout_eval_date": "2026-02-03",
+    "promoted_targets": [
+      5,
+      25,
+      50,
+      100,
+      5,
+      25,
+      50,
+      100
+    ],
+    "recent_events": [
+      {
+        "action": "promote",
+        "apply_change": true,
+        "created_at": "2026-02-18T23:13:17.959754+00:00",
+        "current_percent": 0,
+        "details": {
+          "source": "bootstrap",
+          "stage": "0\u21925"
+        },
+        "eval_date": "2026-01-24",
+        "gate_result": "pass",
+        "sample_size": 518,
+        "target_percent": 5
+      },
+      {
+        "action": "promote",
+        "apply_change": true,
+        "created_at": "2026-02-18T23:13:17.959754+00:00",
+        "current_percent": 5,
+        "details": {
+          "source": "bootstrap",
+          "stage": "5\u219225"
+        },
+        "eval_date": "2026-01-27",
+        "gate_result": "pass",
+        "sample_size": 702,
+        "target_percent": 25
+      },
+      {
+        "action": "promote",
+        "apply_change": true,
+        "created_at": "2026-02-18T23:13:17.959754+00:00",
+        "current_percent": 25,
+        "details": {
+          "source": "bootstrap",
+          "stage": "25\u219250"
+        },
+        "eval_date": "2026-01-30",
+        "gate_result": "pass",
+        "sample_size": 355,
+        "target_percent": 50
+      },
+      {
+        "action": "promote",
+        "apply_change": true,
+        "created_at": "2026-02-18T23:13:17.959754+00:00",
+        "current_percent": 50,
+        "details": {
+          "source": "bootstrap",
+          "stage": "50\u2192100"
+        },
+        "eval_date": "2026-02-02",
+        "gate_result": "pass",
+        "sample_size": 770,
+        "target_percent": 100
+      },
+      {
+        "action": "rollback",
+        "apply_change": true,
+        "created_at": "2026-02-18T23:13:17.959754+00:00",
+        "current_percent": 100,
+        "details": {
+          "reason": "rollback_drill",
+          "source": "bootstrap"
+        },
+        "eval_date": "2026-02-06",
+        "gate_result": "pass",
+        "sample_size": 506,
+        "target_percent": 0
+      },
+      {
+        "action": "promote",
+        "apply_change": true,
+        "created_at": "2026-02-19T17:18:32.657476+00:00",
+        "current_percent": 0,
+        "details": {
+          "source": "bootstrap",
+          "stage": "0\u21925"
+        },
+        "eval_date": "2026-01-25",
+        "gate_result": "pass",
+        "sample_size": 518,
+        "target_percent": 5
+      },
+      {
+        "action": "promote",
+        "apply_change": true,
+        "created_at": "2026-02-19T17:18:32.657476+00:00",
+        "current_percent": 5,
+        "details": {
+          "source": "bootstrap",
+          "stage": "5\u219225"
+        },
+        "eval_date": "2026-01-28",
+        "gate_result": "pass",
+        "sample_size": 702,
+        "target_percent": 25
+      },
+      {
+        "action": "promote",
+        "apply_change": true,
+        "created_at": "2026-02-19T17:18:32.657476+00:00",
+        "current_percent": 25,
+        "details": {
+          "source": "bootstrap",
+          "stage": "25\u219250"
+        },
+        "eval_date": "2026-01-31",
+        "gate_result": "pass",
+        "sample_size": 355,
+        "target_percent": 50
+      },
+      {
+        "action": "promote",
+        "apply_change": true,
+        "created_at": "2026-02-19T17:18:32.657476+00:00",
+        "current_percent": 50,
+        "details": {
+          "source": "bootstrap",
+          "stage": "50\u2192100"
+        },
+        "eval_date": "2026-02-03",
+        "gate_result": "pass",
+        "sample_size": 770,
+        "target_percent": 100
+      },
+      {
+        "action": "rollback",
+        "apply_change": true,
+        "created_at": "2026-02-19T17:18:32.657476+00:00",
+        "current_percent": 100,
+        "details": {
+          "reason": "rollback_drill",
+          "source": "bootstrap"
+        },
+        "eval_date": "2026-02-07",
+        "gate_result": "pass",
+        "sample_size": 506,
+        "target_percent": 0
+      }
+    ],
+    "required_stage_sequence": [
+      5,
+      25,
+      50,
+      100
+    ]
+  },
+  "scope": {
+    "model_variant": "challenger",
+    "section": null,
+    "tenant_id": null
+  },
+  "slo": {
+    "breached_alerts": [],
+    "query_error": "",
+    "skipped": true
+  },
+  "window": {
+    "end_date": "2026-02-18",
+    "min_daily_samples": 200,
+    "quality_start_date": "2026-02-05",
+    "stable_days_observed": 28,
+    "stable_days_required": 14,
+    "start_date": "2026-01-22"
+  }
+}

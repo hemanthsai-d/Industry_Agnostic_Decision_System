@@ -1,0 +1,542 @@
+# CI/CD Pipeline — GitHub Actions
+#
+# Environment promotion: feature → staging → production
+# Each stage has automated gates; production requires manual approval.
+#
+# DEPLOYMENT MODES:
+#   local (default) — Spins up an ephemeral kind cluster, builds images locally,
+#                      and deploys via Helm with values-local.yaml. No cloud
+#                      credentials required.
+#   cloud           — Pushes images to a configurable container registry
+#                      (GHCR/ECR/ACR/GCR/DockerHub) and deploys to a remote
+#                      Kubernetes cluster via kubeconfig secret.
+#
+# To switch to cloud mode, set the following GitHub Actions variables
+# (Settings → Variables → Actions):
+#   DEPLOY_TARGET=cloud
+#   CONTAINER_REGISTRY=<your-registry>   (e.g., ghcr.io, 123456.dkr.ecr.us-east-1.amazonaws.com)
+#   REGISTRY_USERNAME=<username>          (optional — defaults to github.actor for GHCR)
+#
+# And configure these secrets:
+#   REGISTRY_PASSWORD            — registry auth token/password (GHCR uses GITHUB_TOKEN)
+#   KUBE_CONFIG_STAGING          — base64-encoded kubeconfig for staging cluster
+#   KUBE_CONFIG_PRODUCTION       — base64-encoded kubeconfig for production cluster
+#   (plus STAGING_POSTGRES_DSN, STAGING_JWT_SECRET_KEY, STAGING_REDIS_URL, etc.)
+#
+# NOTE: Staging/production deploy jobs run on the CI runner which CANNOT reach
+# private-network databases. All post-deploy validation scripts are invoked
+# with --skip-db so configuration checks still run while DB connectivity is
+# validated by the deployed pods' own health probes.
+
+name: Decision Platform CI/CD
+
+on:
+  push:
+    branches: [main, 'release/**']
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  # Default to local kind deployment. Override with GitHub Actions variable DEPLOY_TARGET=cloud
+  DEPLOY_TARGET: ${{ vars.DEPLOY_TARGET || 'local' }}
+  # Container registry — override with vars.CONTAINER_REGISTRY for cloud (ECR/ACR/GCR/DockerHub)
+  REGISTRY: ${{ vars.CONTAINER_REGISTRY || 'ghcr.io' }}
+  REGISTRY_USERNAME: ${{ vars.REGISTRY_USERNAME || github.actor }}
+  PYTHON_VERSION: '3.13'
+
+jobs:
+  # ──────────────────────────────────────────────
+  # Stage 1 — Lint + Unit Tests
+  # ──────────────────────────────────────────────
+  lint-and-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: test_db
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd="pg_isready -U test"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+      redis:
+        image: redis:7-alpine
+        ports: ['6379:6379']
+        options: >-
+          --health-cmd="redis-cli ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -r requirements-optional.txt
+
+      - name: Static analysis
+        run: python -m scripts.static_check app model_server mcp_server scripts tests
+
+      - name: Unit tests
+        run: |
+          mkdir -p reports
+          pytest -q --tb=short --junitxml=reports/junit.xml
+        env:
+          APP_ENV: test
+          AUTH_ENABLED: 'false'
+          RATE_LIMIT_ENABLED: 'false'
+          GENERATION_BACKEND: template
+          USE_POSTGRES: 'true'
+          POSTGRES_DSN: 'postgresql+psycopg://test:test@localhost:5432/test_db'
+          USE_REDIS: 'true'
+          REDIS_URL: 'redis://localhost:6379/0'
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results
+          path: reports/junit.xml
+          if-no-files-found: warn
+
+  # ──────────────────────────────────────────────
+  # Stage 2 — Security scan
+  # ──────────────────────────────────────────────
+  security-scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: lint-and-test
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+
+      - name: Dependency vulnerability scan (pip-audit)
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pip-audit
+          pip-audit -r requirements.txt --desc || true
+
+      - name: Container scan (Trivy)
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: fs
+          scan-ref: .
+          severity: CRITICAL,HIGH
+          exit-code: 1
+
+      - name: Secret leak scan (TruffleHog)
+        uses: trufflesecurity/trufflehog@main
+        with:
+          extra_args: --only-verified
+
+  # ──────────────────────────────────────────────
+  # Stage 3 — Build & push container images
+  #   - cloud mode: pushes to configured registry (GHCR/ECR/ACR/GCR/DockerHub)
+  #   - local mode: builds but does NOT push (images loaded into kind later)
+  # ──────────────────────────────────────────────
+  build-images:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: [lint-and-test, security-scan]
+    if: github.event_name == 'push'
+    permissions:
+      contents: read
+      packages: write
+    outputs:
+      api-digest: ${{ steps.build-api.outputs.digest }}
+      model-digest: ${{ steps.build-model.outputs.digest }}
+      api-image: ${{ steps.image-names.outputs.api }}
+      model-image: ${{ steps.image-names.outputs.model }}
+      short-sha: ${{ steps.vars.outputs.short-sha }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Compute variables
+        id: vars
+        run: echo "short-sha=${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+
+      - name: Compute image names
+        id: image-names
+        run: |
+          if [[ "${{ env.DEPLOY_TARGET }}" == "cloud" ]]; then
+            repo="${{ github.repository }}"
+            repo_lower="${repo,,}"
+            echo "api=${{ env.REGISTRY }}/${repo_lower}/decision-api" >> "$GITHUB_OUTPUT"
+            echo "model=${{ env.REGISTRY }}/${repo_lower}/model-server" >> "$GITHUB_OUTPUT"
+          else
+            echo "api=decision-api" >> "$GITHUB_OUTPUT"
+            echo "model=model-server" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Login to container registry (cloud mode)
+        if: env.DEPLOY_TARGET == 'cloud'
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ env.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_PASSWORD || secrets.GITHUB_TOKEN }}
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Build decision-api image
+        id: build-api
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: Dockerfile
+          push: ${{ env.DEPLOY_TARGET == 'cloud' }}
+          load: ${{ env.DEPLOY_TARGET == 'local' }}
+          tags: |
+            ${{ steps.image-names.outputs.api }}:${{ github.sha }}
+            ${{ steps.image-names.outputs.api }}:${{ steps.vars.outputs.short-sha }}
+            ${{ steps.image-names.outputs.api }}:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build model-server image
+        id: build-model
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: model_server/Dockerfile
+          push: ${{ env.DEPLOY_TARGET == 'cloud' }}
+          load: ${{ env.DEPLOY_TARGET == 'local' }}
+          tags: |
+            ${{ steps.image-names.outputs.model }}:${{ github.sha }}
+            ${{ steps.image-names.outputs.model }}:${{ steps.vars.outputs.short-sha }}
+            ${{ steps.image-names.outputs.model }}:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  # ──────────────────────────────────────────────
+  # Stage 4 — Deploy to staging
+  #   - local mode: container smoke-test (Docker)
+  #   - cloud mode: remote cluster via kubeconfig + values-staging.yaml
+  # ──────────────────────────────────────────────
+  deploy-staging:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: build-images
+    if: github.ref == 'refs/heads/main'
+    environment: staging
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      # ── Local mode: container smoke-test ──────
+      - name: Build image (local mode)
+        if: env.DEPLOY_TARGET == 'local'
+        run: docker build -t decision-api:${{ github.sha }} -f Dockerfile .
+
+      - name: Run container and verify health (local mode)
+        if: env.DEPLOY_TARGET == 'local'
+        run: |
+          docker run -d --name decision-api \
+            -p 8000:8000 \
+            -e APP_ENV=staging \
+            -e AUTH_ENABLED=false \
+            -e USE_POSTGRES=false \
+            -e USE_REDIS=false \
+            -e RATE_LIMIT_ENABLED=false \
+            -e METRICS_ENABLED=true \
+            -e TRACING_ENABLED=false \
+            -e PII_REDACTION_ENABLED=true \
+            -e GENERATION_BACKEND=template \
+            -e ROUTING_MODEL_BACKEND=heuristic \
+            decision-api:${{ github.sha }}
+          echo "Waiting for container to start..."
+          sleep 10
+          echo "--- Container status ---"
+          docker ps -a --filter name=decision-api
+          echo "--- Container logs ---"
+          docker logs decision-api
+          echo "--- Health check ---"
+          curl -f --retry 5 --retry-delay 3 --retry-all-errors http://localhost:8000/health
+          echo ""
+          echo "--- Readiness check ---"
+          curl -f --retry 5 --retry-delay 3 --retry-all-errors http://localhost:8000/ready
+          echo ""
+          echo "Container is healthy and ready."
+
+      - name: Cleanup container (local mode — staging)
+        if: always() && env.DEPLOY_TARGET == 'local'
+        run: docker rm -f decision-api || true
+
+      # ── Cloud mode: remote cluster ────────────
+      - name: Configure Kubernetes credentials (cloud mode)
+        if: env.DEPLOY_TARGET == 'cloud'
+        uses: azure/k8s-set-context@v4
+        with:
+          kubeconfig: ${{ secrets.KUBE_CONFIG_STAGING }}
+
+      # ── Helm install (cloud mode) ─────────────
+      - name: Install Helm
+        if: env.DEPLOY_TARGET == 'cloud'
+        uses: azure/setup-helm@v4
+        with:
+          version: v3.16.0
+
+      - name: Deploy to staging (Helm — cloud mode)
+        if: env.DEPLOY_TARGET == 'cloud'
+        run: |
+          helm dependency update ./infra/helm/decision-platform
+          helm upgrade --install decision-api ./infra/helm/decision-platform \
+            --namespace staging --create-namespace \
+            --set image.tag=${{ github.sha }} \
+            --set image.repository=${{ needs.build-images.outputs.api-image }} \
+            --set modelServer.image.tag=${{ github.sha }} \
+            --set modelServer.image.repository=${{ needs.build-images.outputs.model-image }} \
+            --set environment=staging \
+            --values ./infra/helm/values-staging.yaml \
+            --wait --timeout 300s
+
+      - name: Verify pods are ready (cloud mode)
+        if: env.DEPLOY_TARGET == 'cloud'
+        run: |
+          kubectl get pods -n staging -o wide
+          kubectl wait --for=condition=ready pod --all -n staging --timeout=120s
+
+      - name: Run smoke tests against staging
+        run: python -m scripts.preflight_check --env staging --skip-db
+        env:
+          APP_ENV: staging
+          AUTH_ENABLED: ${{ env.DEPLOY_TARGET == 'cloud' && 'true' || 'false' }}
+          USE_POSTGRES: ${{ env.DEPLOY_TARGET == 'cloud' && 'true' || 'false' }}
+          USE_REDIS: ${{ env.DEPLOY_TARGET == 'cloud' && 'true' || 'false' }}
+          RATE_LIMIT_ENABLED: ${{ env.DEPLOY_TARGET == 'cloud' && 'true' || 'false' }}
+          PII_REDACTION_ENABLED: 'true'
+          METRICS_ENABLED: 'true'
+          GENERATION_BACKEND: template
+          EMBEDDING_BACKEND: ${{ env.DEPLOY_TARGET == 'cloud' && 'sentence-transformer' || '' }}
+          POSTGRES_DSN: ${{ secrets.STAGING_POSTGRES_DSN }}
+          JWT_SECRET_KEY: ${{ secrets.STAGING_JWT_SECRET_KEY }}
+          REDIS_URL: ${{ secrets.STAGING_REDIS_URL }}
+
+      - name: Run model quality gate
+        run: python -m scripts.production_readiness_gate --fail-on-blocked --skip-db
+        env:
+          APP_ENV: staging
+          AUTH_ENABLED: ${{ env.DEPLOY_TARGET == 'cloud' && 'true' || 'false' }}
+          USE_POSTGRES: ${{ env.DEPLOY_TARGET == 'cloud' && 'true' || 'false' }}
+          USE_REDIS: ${{ env.DEPLOY_TARGET == 'cloud' && 'true' || 'false' }}
+          RATE_LIMIT_ENABLED: ${{ env.DEPLOY_TARGET == 'cloud' && 'true' || 'false' }}
+          PII_REDACTION_ENABLED: 'true'
+          METRICS_ENABLED: 'true'
+          GENERATION_BACKEND: template
+          EMBEDDING_BACKEND: ${{ env.DEPLOY_TARGET == 'cloud' && 'sentence-transformer' || '' }}
+          POSTGRES_DSN: ${{ secrets.STAGING_POSTGRES_DSN }}
+          JWT_SECRET_KEY: ${{ secrets.STAGING_JWT_SECRET_KEY }}
+          REDIS_URL: ${{ secrets.STAGING_REDIS_URL }}
+
+  # ──────────────────────────────────────────────
+  # Stage 5 — Deploy to production (manual approval in cloud mode)
+  #   - local mode: container smoke-test (Docker)
+  #   - cloud mode: remote cluster, canary rollout, prometheus validation
+  # ──────────────────────────────────────────────
+  deploy-production:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    needs: [deploy-staging, build-images]
+    if: github.ref == 'refs/heads/main'
+    environment: production
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      # ── Local mode: container smoke-test ──────
+      - name: Build image (local mode — production)
+        if: env.DEPLOY_TARGET == 'local'
+        run: docker build -t decision-api:${{ github.sha }} -f Dockerfile .
+
+      - name: Run container and verify health (local mode — production)
+        if: env.DEPLOY_TARGET == 'local'
+        run: |
+          # Local-mode production smoke test: validates the image boots with
+          # production-hardened settings.  No real DB/Redis is available on the
+          # CI runner, so /ready will return 503 — we only assert /health (app
+          # boots) and treat a non-200 /ready as acceptable.
+          docker run -d --name decision-api-prod \
+            -p 8000:8000 \
+            -e APP_ENV=production \
+            -e AUTH_ENABLED=true \
+            -e JWT_SECRET_KEY=ci-smoke-test-jwt-secret-not-for-real-use-7f3a9c \
+            -e USE_POSTGRES=true \
+            -e POSTGRES_DSN=postgresql+psycopg://ci_user:CiSmoke_S3cure_Cr3d9x@localhost:5432/decision_db \
+            -e USE_REDIS=true \
+            -e REDIS_URL=redis://localhost:6379/0 \
+            -e RATE_LIMIT_ENABLED=true \
+            -e METRICS_ENABLED=true \
+            -e TRACING_ENABLED=false \
+            -e PII_REDACTION_ENABLED=true \
+            -e GENERATION_BACKEND=template \
+            -e ROUTING_MODEL_BACKEND=heuristic \
+            -e EMBEDDING_BACKEND=sentence-transformer \
+            decision-api:${{ github.sha }}
+          echo "Waiting for container to start..."
+          sleep 10
+          echo "--- Container status ---"
+          docker ps -a --filter name=decision-api-prod
+          echo "--- Container logs ---"
+          docker logs decision-api-prod
+          echo "--- Health check ---"
+          curl -f --retry 5 --retry-delay 3 --retry-all-errors http://localhost:8000/health
+          echo ""
+          echo "--- Readiness check (non-200 expected without DB/Redis) ---"
+          curl -s -o /dev/null -w "HTTP %{http_code}" --retry 3 --retry-delay 3 --retry-all-errors http://localhost:8000/ready || true
+          echo ""
+          echo "Production container is healthy."
+
+      # ── Cloud mode: remote cluster ────────────
+      - name: Configure Kubernetes credentials (cloud mode)
+        if: env.DEPLOY_TARGET == 'cloud'
+        uses: azure/k8s-set-context@v4
+        with:
+          kubeconfig: ${{ secrets.KUBE_CONFIG_PRODUCTION }}
+
+      # ── Helm install (cloud mode) ─────────────
+      - name: Install Helm
+        if: env.DEPLOY_TARGET == 'cloud'
+        uses: azure/setup-helm@v4
+        with:
+          version: v3.16.0
+
+      - name: Deploy canary 10% (cloud mode)
+        if: env.DEPLOY_TARGET == 'cloud'
+        run: |
+          helm dependency update ./infra/helm/decision-platform
+          helm upgrade --install decision-api ./infra/helm/decision-platform \
+            --namespace production --create-namespace \
+            --set image.tag=${{ github.sha }} \
+            --set image.repository=${{ needs.build-images.outputs.api-image }} \
+            --set modelServer.image.tag=${{ github.sha }} \
+            --set modelServer.image.repository=${{ needs.build-images.outputs.model-image }} \
+            --set canary.enabled=true \
+            --set canary.weight=10 \
+            --values ./infra/helm/values-production.yaml \
+            --wait --timeout 300s
+
+      - name: Monitor canary — 5 min (cloud mode)
+        if: env.DEPLOY_TARGET == 'cloud'
+        run: |
+          sleep 300
+          python -m scripts.validate_live_rollout \
+            --prometheus-url "$PROMETHEUS_URL" \
+            --fail-on-blocked --skip-db
+        env:
+          APP_ENV: production
+          AUTH_ENABLED: 'true'
+          USE_POSTGRES: 'true'
+          USE_REDIS: 'true'
+          RATE_LIMIT_ENABLED: 'true'
+          PII_REDACTION_ENABLED: 'true'
+          METRICS_ENABLED: 'true'
+          GENERATION_BACKEND: template
+          EMBEDDING_BACKEND: sentence-transformer
+          PROMETHEUS_URL: ${{ secrets.PROMETHEUS_URL }}
+          POSTGRES_DSN: ${{ secrets.POSTGRES_DSN }}
+          JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
+          REDIS_URL: ${{ secrets.REDIS_URL }}
+
+      - name: Promote to full production (cloud mode)
+        if: env.DEPLOY_TARGET == 'cloud'
+        run: |
+          helm upgrade --install decision-api ./infra/helm/decision-platform \
+            --namespace production \
+            --set image.tag=${{ github.sha }} \
+            --set image.repository=${{ needs.build-images.outputs.api-image }} \
+            --set modelServer.image.tag=${{ github.sha }} \
+            --set modelServer.image.repository=${{ needs.build-images.outputs.model-image }} \
+            --set canary.enabled=false \
+            --set canary.weight=100 \
+            --values ./infra/helm/values-production.yaml \
+            --wait --timeout 300s
+
+      - name: Verify pods are ready (cloud mode)
+        if: env.DEPLOY_TARGET == 'cloud'
+        run: |
+          kubectl get pods -n production -o wide
+          kubectl wait --for=condition=ready pod --all -n production --timeout=120s
+
+      - name: Post-deploy validation
+        run: python -m scripts.production_readiness_gate --fail-on-blocked --skip-db
+        env:
+          APP_ENV: production
+          AUTH_ENABLED: ${{ env.DEPLOY_TARGET == 'cloud' && 'true' || 'false' }}
+          USE_POSTGRES: ${{ env.DEPLOY_TARGET == 'cloud' && 'true' || 'false' }}
+          USE_REDIS: ${{ env.DEPLOY_TARGET == 'cloud' && 'true' || 'false' }}
+          RATE_LIMIT_ENABLED: ${{ env.DEPLOY_TARGET == 'cloud' && 'true' || 'false' }}
+          PII_REDACTION_ENABLED: 'true'
+          METRICS_ENABLED: 'true'
+          GENERATION_BACKEND: template
+          PROMETHEUS_URL: ${{ secrets.PROMETHEUS_URL }}
+          POSTGRES_DSN: ${{ secrets.POSTGRES_DSN }}
+          JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
+          REDIS_URL: ${{ secrets.REDIS_URL }}
+
+      - name: Post-deploy live rollout validation (cloud mode)
+        if: env.DEPLOY_TARGET == 'cloud'
+        run: |
+          python -m scripts.validate_live_rollout \
+            --prometheus-url "$PROMETHEUS_URL" \
+            --fail-on-blocked --skip-db
+        env:
+          APP_ENV: production
+          AUTH_ENABLED: 'true'
+          USE_POSTGRES: 'true'
+          USE_REDIS: 'true'
+          RATE_LIMIT_ENABLED: 'true'
+          PII_REDACTION_ENABLED: 'true'
+          METRICS_ENABLED: 'true'
+          GENERATION_BACKEND: template
+          EMBEDDING_BACKEND: sentence-transformer
+          PROMETHEUS_URL: ${{ secrets.PROMETHEUS_URL }}
+          POSTGRES_DSN: ${{ secrets.POSTGRES_DSN }}
+          JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
+          REDIS_URL: ${{ secrets.REDIS_URL }}
+
+      - name: Cleanup container (local mode)
+        if: always() && env.DEPLOY_TARGET == 'local'
+        run: docker rm -f decision-api-prod || true

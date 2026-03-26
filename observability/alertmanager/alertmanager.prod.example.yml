@@ -1,0 +1,48 @@
+global:
+  resolve_timeout: 5m
+
+route:
+  receiver: ops-ticket
+  group_by: ['alertname', 'severity', 'owner', 'slo']
+  group_wait: 30s
+  group_interval: 5m
+  repeat_interval: 1h
+  routes:
+    - matchers:
+        - severity="critical"
+      receiver: ops-pager-critical
+      continue: true
+    - matchers:
+        - owner="model_oncall"
+      receiver: model-oncall-warning
+    - matchers:
+        - owner="platform_oncall"
+      receiver: platform-oncall-warning
+
+inhibit_rules:
+  - source_matchers:
+      - severity="critical"
+    target_matchers:
+      - severity="warning"
+    equal: ['alertname', 'owner']
+
+receivers:
+  - name: ops-pager-critical
+    webhook_configs:
+      - url: https://pager.example.invalid/webhook
+        send_resolved: true
+
+  - name: model-oncall-warning
+    webhook_configs:
+      - url: https://model-oncall.example.invalid/webhook
+        send_resolved: true
+
+  - name: platform-oncall-warning
+    webhook_configs:
+      - url: https://platform-oncall.example.invalid/webhook
+        send_resolved: true
+
+  - name: ops-ticket
+    webhook_configs:
+      - url: https://ops-ticket.example.invalid/webhook
+        send_resolved: true

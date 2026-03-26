@@ -1,0 +1,6 @@
+metric_date,tenant_id,section,eligible_tickets_total,active_agents_total,source
+2026-02-14,org_demo,billing,120,42,ops_export
+2026-02-15,org_demo,billing,118,41,ops_export
+2026-02-16,org_demo,billing,124,43,ops_export
+2026-02-17,org_demo,billing,127,43,ops_export
+2026-02-18,org_demo,billing,122,40,ops_export

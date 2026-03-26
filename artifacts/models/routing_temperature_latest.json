@@ -1,0 +1,10 @@
+{
+  "fitted_on_utc": "2026-02-17T23:59:53.240383+00:00",
+  "log_loss": 0.0,
+  "lookback_days": 30,
+  "max_probability": 0.9999,
+  "min_probability": 0.0001,
+  "model_variant": "primary",
+  "sample_size": 0,
+  "temperature": 1.0
+}

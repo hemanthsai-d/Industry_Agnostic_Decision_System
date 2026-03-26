@@ -1,0 +1,178 @@
+{
+  "blocking_reasons": [],
+  "business_scorecard": {
+    "failed_or_missing": [],
+    "rows": [
+      {
+        "actual_value": 0.8372093023255814,
+        "comparator": "gte",
+        "kpi_name": "agent_weekly_active_usage_pct",
+        "status": "pass",
+        "target_value": 0.7
+      },
+      {
+        "actual_value": 8.546551724137931,
+        "comparator": "gte",
+        "kpi_name": "assisted_coverage_pct",
+        "status": "pass",
+        "target_value": 0.8
+      },
+      {
+        "actual_value": 0.06584122016645046,
+        "comparator": "lte",
+        "kpi_name": "ece",
+        "status": "pass",
+        "target_value": 0.1
+      },
+      {
+        "actual_value": 0.8650764070070817,
+        "comparator": "gte",
+        "kpi_name": "escalation_precision_pct",
+        "status": "pass",
+        "target_value": 0.8
+      },
+      {
+        "actual_value": 0.3496836543937067,
+        "comparator": "gte",
+        "kpi_name": "escalation_rate_reduction_pct",
+        "status": "pass",
+        "target_value": 0.2
+      },
+      {
+        "actual_value": 0.8446142649199417,
+        "comparator": "gte",
+        "kpi_name": "escalation_recall_pct",
+        "status": "pass",
+        "target_value": 0.75
+      },
+      {
+        "actual_value": 1.0,
+        "comparator": "gte",
+        "kpi_name": "feedback_completeness_pct",
+        "status": "pass",
+        "target_value": 0.95
+      },
+      {
+        "actual_value": 0.5668016194331984,
+        "comparator": "gte",
+        "kpi_name": "median_handling_time_reduction_pct",
+        "status": "pass",
+        "target_value": 0.25
+      },
+      {
+        "actual_value": 0.5602923264311814,
+        "comparator": "gte",
+        "kpi_name": "p90_handling_time_reduction_pct",
+        "status": "pass",
+        "target_value": 0.15
+      },
+      {
+        "actual_value": 0.8677350574317353,
+        "comparator": "gte",
+        "kpi_name": "top1_route_accuracy_pct",
+        "status": "pass",
+        "target_value": 0.85
+      }
+    ]
+  },
+  "checks": {
+    "business_kpi_passed": true,
+    "control_recency_passed": true,
+    "label_coverage_passed": true,
+    "live_rollout_passed": true,
+    "workload_feed_coverage_passed": true
+  },
+  "control_recency": [
+    {
+      "age_days": 0,
+      "control_type": "incident_endpoint_verification",
+      "evidence_uri": "artifacts/reports/incident_endpoint_verification_bootstrap.json",
+      "max_age_days": 30,
+      "passed": true,
+      "performed_at": "2026-02-18T23:13:19.459858+00:00",
+      "status": "ok"
+    },
+    {
+      "age_days": 0,
+      "control_type": "oncall_schedule_audit",
+      "evidence_uri": "artifacts/reports/oncall_schedule_audit_bootstrap.json",
+      "max_age_days": 30,
+      "passed": true,
+      "performed_at": "2026-02-18T23:13:19.461622+00:00",
+      "status": "ok"
+    },
+    {
+      "age_days": 0,
+      "control_type": "secret_rotation",
+      "evidence_uri": "artifacts/reports/secret_rotation_bootstrap.json",
+      "max_age_days": 90,
+      "passed": true,
+      "performed_at": "2026-02-18T23:13:19.461931+00:00",
+      "status": "ok"
+    },
+    {
+      "age_days": 0,
+      "control_type": "access_review",
+      "evidence_uri": "artifacts/reports/access_review_bootstrap.json",
+      "max_age_days": 90,
+      "passed": true,
+      "performed_at": "2026-02-18T23:13:19.462237+00:00",
+      "status": "ok"
+    },
+    {
+      "age_days": 0,
+      "control_type": "load_test",
+      "evidence_uri": "artifacts/reports/nonfunctional_load_20260218T002234Z.md",
+      "max_age_days": 30,
+      "passed": true,
+      "performed_at": "2026-02-18T00:22:34.147842+00:00",
+      "status": "ok"
+    },
+    {
+      "age_days": 0,
+      "control_type": "soak_test",
+      "evidence_uri": "artifacts/reports/nonfunctional_soak_20260218T002304Z.md",
+      "max_age_days": 30,
+      "passed": true,
+      "performed_at": "2026-02-18T00:23:04.579923+00:00",
+      "status": "ok"
+    },
+    {
+      "age_days": 0,
+      "control_type": "failure_test",
+      "evidence_uri": "artifacts/reports/nonfunctional_failure_20260218T002335Z.md",
+      "max_age_days": 30,
+      "passed": true,
+      "performed_at": "2026-02-18T00:23:35.047359+00:00",
+      "status": "ok"
+    }
+  ],
+  "generated_at_utc": "2026-02-19T17:28:12.324695+00:00",
+  "label_coverage": {
+    "closed_handoffs": 3790,
+    "missing_outcomes": 0
+  },
+  "live_rollout_report": {
+    "blocking_reasons": [],
+    "json_path": "artifacts/reports/live_rollout_validation_2026-02-18.json",
+    "markdown_path": "artifacts/reports/live_rollout_validation_2026-02-18.md"
+  },
+  "overall_passed": true,
+  "scope": {
+    "section": null,
+    "tenant_id": null
+  },
+  "window": {
+    "baseline_end": "2026-01-21",
+    "baseline_start": "2025-12-25",
+    "end_date": "2026-02-18",
+    "start_date": "2026-01-22"
+  },
+  "workload_coverage": {
+    "expected_dates": 28,
+    "missing_dates": [],
+    "present_dates": 28,
+    "window_end": "2026-02-18",
+    "window_start": "2026-01-22"
+  }
+}

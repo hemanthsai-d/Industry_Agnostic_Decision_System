@@ -1,0 +1,188 @@
+# Default values for decision-platform Helm chart.
+# Override per environment with values-staging.yaml / values-production.yaml.
+
+replicaCount: 2
+
+image:
+  repository: ghcr.io/org/decision-api
+  tag: latest
+  pullPolicy: IfNotPresent
+
+modelServer:
+  enabled: true
+  replicaCount: 2
+  image:
+    repository: ghcr.io/org/model-server
+    tag: latest
+  resources:
+    requests:
+      cpu: 500m
+      memory: 512Mi
+    limits:
+      cpu: "2"
+      memory: 1Gi
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 8
+    targetCPUUtilizationPercentage: 70
+
+resources:
+  requests:
+    cpu: 250m
+    memory: 256Mi
+  limits:
+    cpu: "1"
+    memory: 512Mi
+
+podSecurityContext:
+  runAsNonRoot: true
+  fsGroup: 1000
+
+containerSecurityContext:
+  readOnlyRootFilesystem: true
+
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 20
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 80
+
+service:
+  type: ClusterIP
+  port: 8000
+
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/rate-limit: "120"
+    nginx.ingress.kubernetes.io/rate-limit-window: "1m"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+  hosts:
+    - host: api.decision-platform.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: decision-api-tls
+      hosts:
+        - api.decision-platform.com
+
+# Canary deployment (Argo Rollouts or Flagger)
+canary:
+  enabled: false
+  weight: 0
+  steps:
+    - setWeight: 10
+    - pause: {duration: 5m}
+    - setWeight: 25
+    - pause: {duration: 5m}
+    - setWeight: 50
+    - pause: {duration: 10m}
+    - setWeight: 100
+  analysis:
+    successRate: 99
+    latencyP95: 1000  # ms
+
+# OPA sidecar
+opa:
+  enabled: true
+  image: openpolicyagent/opa:0.69.0-static
+
+# Environment variables (secrets from Vault/K8s secrets)
+env:
+  APP_ENV: production
+  AUTH_ENABLED: "true"
+  USE_POSTGRES: "true"
+  USE_REDIS: "true"
+  RATE_LIMIT_ENABLED: "true"
+  METRICS_ENABLED: "true"
+  TRACING_ENABLED: "true"
+  PII_REDACTION_ENABLED: "true"
+  MODEL_SHADOW_ENABLED: "true"
+
+# Secrets from Kubernetes Secret objects (backed by Vault CSI or sealed-secrets)
+secretRef: decision-platform-secrets
+
+# Pod disruption budget
+podDisruptionBudget:
+  minAvailable: 1
+
+# Probes
+livenessProbe:
+  httpGet:
+    path: /health
+    port: 8000
+  initialDelaySeconds: 10
+  periodSeconds: 15
+
+readinessProbe:
+  httpGet:
+    path: /ready
+    port: 8000
+  initialDelaySeconds: 5
+  periodSeconds: 10
+
+# Pod topology spread for failure domain awareness
+topologySpreadConstraints:
+  - maxSkew: 1
+    topologyKey: topology.kubernetes.io/zone
+    whenUnsatisfiable: DoNotSchedule
+    labelSelector:
+      matchLabels:
+        app: decision-api
+
+# Network policy — only allow ingress from nginx-ingress + prometheus
+networkPolicy:
+  enabled: true
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              name: ingress-nginx
+        - namespaceSelector:
+            matchLabels:
+              name: monitoring
+      ports:
+        - port: 8000
+        - port: 9090
+
+# PostgreSQL subchart
+postgresql:
+  enabled: true
+  auth:
+    existingSecret: decision-platform-secrets
+    secretKeys:
+      adminPasswordKey: POSTGRES_PASSWORD
+  primary:
+    persistence:
+      size: 50Gi
+      storageClass: gp3-encrypted  # EBS gp3 with encryption at rest
+    resources:
+      requests:
+        cpu: "1"
+        memory: 2Gi
+  # pgvector extension
+  image:
+    repository: pgvector/pgvector
+    tag: pg16
+
+# Redis subchart
+redis:
+  enabled: true
+  auth:
+    existingSecret: decision-platform-secrets
+    existingSecretPasswordKey: REDIS_PASSWORD
+  master:
+    persistence:
+      size: 5Gi
+    resources:
+      requests:
+        cpu: 250m
+        memory: 256Mi
+
+environment: production

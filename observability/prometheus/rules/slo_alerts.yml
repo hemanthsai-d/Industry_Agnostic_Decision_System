@@ -1,0 +1,352 @@
+groups:
+  - name: decision-platform-slo
+    interval: 30s
+    rules:
+      # ── Error & availability ───────────────────────────────────────
+      - record: decision_api:error_rate_5m
+        expr: |
+          sum(rate(assist_http_requests_total{service="decision-api",status=~"5.."}[5m]))
+          /
+          clamp_min(sum(rate(assist_http_requests_total{service="decision-api"}[5m])), 0.001)
+
+      - record: decision_api:availability_5m
+        expr: |
+          1 - decision_api:error_rate_5m
+
+      # ── Latency recording rules: p50 / p95 / p99 ──────────────────
+      - record: decision_api:latency_p50_5m
+        expr: |
+          histogram_quantile(
+            0.50,
+            sum(rate(assist_http_request_duration_seconds_bucket{service="decision-api"}[5m])) by (le)
+          )
+
+      - record: decision_api:latency_p95_5m
+        expr: |
+          histogram_quantile(
+            0.95,
+            sum(rate(assist_http_request_duration_seconds_bucket{service="decision-api"}[5m])) by (le)
+          )
+
+      - record: decision_api:latency_p99_5m
+        expr: |
+          histogram_quantile(
+            0.99,
+            sum(rate(assist_http_request_duration_seconds_bucket{service="decision-api"}[5m])) by (le)
+          )
+
+      # ── Pipeline stage latencies: p50 / p95 / p99 ─────────────────
+      - record: decision_api:stage_latency_p50_5m
+        expr: |
+          histogram_quantile(
+            0.50,
+            sum(rate(assist_pipeline_stage_duration_seconds_bucket{service="decision-api"}[5m])) by (le, stage)
+          )
+
+      - record: decision_api:stage_latency_p95_5m
+        expr: |
+          histogram_quantile(
+            0.95,
+            sum(rate(assist_pipeline_stage_duration_seconds_bucket{service="decision-api"}[5m])) by (le, stage)
+          )
+
+      - record: decision_api:stage_latency_p99_5m
+        expr: |
+          histogram_quantile(
+            0.99,
+            sum(rate(assist_pipeline_stage_duration_seconds_bucket{service="decision-api"}[5m])) by (le, stage)
+          )
+
+      # ── E2E pipeline latency ───────────────────────────────────────
+      - record: decision_api:pipeline_p50_5m
+        expr: |
+          histogram_quantile(
+            0.50,
+            sum(rate(assist_pipeline_total_duration_seconds_bucket{service="decision-api"}[5m])) by (le)
+          )
+
+      - record: decision_api:pipeline_p95_5m
+        expr: |
+          histogram_quantile(
+            0.95,
+            sum(rate(assist_pipeline_total_duration_seconds_bucket{service="decision-api"}[5m])) by (le)
+          )
+
+      - record: decision_api:pipeline_p99_5m
+        expr: |
+          histogram_quantile(
+            0.99,
+            sum(rate(assist_pipeline_total_duration_seconds_bucket{service="decision-api"}[5m])) by (le)
+          )
+
+      # ── Throughput ─────────────────────────────────────────────────
+      - record: decision_api:throughput_rps_5m
+        expr: |
+          sum(rate(assist_http_requests_total{service="decision-api",path="/v1/assist/decide"}[5m]))
+
+      - record: decision_api:throughput_rps_1h
+        expr: |
+          sum(rate(assist_http_requests_total{service="decision-api",path="/v1/assist/decide"}[1h]))
+
+      # ── Cost per request ───────────────────────────────────────────
+      - record: decision_api:cost_per_request_mean_1h
+        expr: |
+          sum(rate(assist_request_cost_dollars_sum[1h]))
+          /
+          clamp_min(sum(rate(assist_request_cost_dollars_count[1h])), 0.001)
+
+      # ── RAG quality recording rules ────────────────────────────────
+      - record: decision_api:faithfulness_mean_1h
+        expr: |
+          sum(rate(assist_rag_faithfulness_sum{service="decision-api"}[1h]))
+          /
+          clamp_min(sum(rate(assist_rag_faithfulness_count{service="decision-api"}[1h])), 0.001)
+
+      - record: decision_api:hallucination_rate_mean_1h
+        expr: |
+          sum(rate(assist_rag_hallucination_ratio_sum{service="decision-api"}[1h]))
+          /
+          clamp_min(sum(rate(assist_rag_hallucination_ratio_count{service="decision-api"}[1h])), 0.001)
+
+      - record: decision_api:citation_coverage_mean_1h
+        expr: |
+          sum(rate(assist_rag_citation_coverage_sum{service="decision-api"}[1h]))
+          /
+          clamp_min(sum(rate(assist_rag_citation_coverage_count{service="decision-api"}[1h])), 0.001)
+
+      - record: decision_api:evidence_score_mean_1h
+        expr: |
+          sum(rate(assist_retrieval_evidence_score_sum{service="decision-api"}[1h]))
+          /
+          clamp_min(sum(rate(assist_retrieval_evidence_score_count{service="decision-api"}[1h])), 0.001)
+
+      # ── Decision outcome rates ─────────────────────────────────────
+      - record: decision_api:abstain_rate_1h
+        expr: |
+          sum(rate(assist_decisions_total{service="decision-api",decision="abstain"}[1h]))
+          /
+          clamp_min(sum(rate(assist_decisions_total{service="decision-api"}[1h])), 0.001)
+
+      - record: decision_api:escalation_rate_1h
+        expr: |
+          sum(rate(assist_decisions_total{service="decision-api",decision="escalate"}[1h]))
+          /
+          clamp_min(sum(rate(assist_decisions_total{service="decision-api"}[1h])), 0.001)
+
+      - record: decision_api:escalation_rate_24h
+        expr: |
+          sum(rate(assist_decisions_total{service="decision-api",decision="escalate"}[24h]))
+          /
+          clamp_min(sum(rate(assist_decisions_total{service="decision-api"}[24h])), 0.001)
+
+      # ── Input / confidence drift ───────────────────────────────────
+      - record: decision_api:input_token_mean_1h
+        expr: |
+          sum(rate(assist_issue_text_token_count_sum{service="decision-api"}[1h]))
+          /
+          clamp_min(sum(rate(assist_issue_text_token_count_count{service="decision-api"}[1h])), 0.001)
+
+      - record: decision_api:input_token_mean_24h
+        expr: |
+          sum(rate(assist_issue_text_token_count_sum{service="decision-api"}[24h]))
+          /
+          clamp_min(sum(rate(assist_issue_text_token_count_count{service="decision-api"}[24h])), 0.001)
+
+      - record: decision_api:confidence_mean_1h
+        expr: |
+          sum(rate(assist_decision_confidence_sum{service="decision-api"}[1h]))
+          /
+          clamp_min(sum(rate(assist_decision_confidence_count{service="decision-api"}[1h])), 0.001)
+
+      - record: decision_api:confidence_mean_24h
+        expr: |
+          sum(rate(assist_decision_confidence_sum{service="decision-api"}[24h]))
+          /
+          clamp_min(sum(rate(assist_decision_confidence_count{service="decision-api"}[24h])), 0.001)
+
+      # ── Prompt injection rate ──────────────────────────────────────
+      - record: decision_api:injection_block_rate_1h
+        expr: |
+          sum(rate(assist_injection_detections_total{action="blocked"}[1h]))
+          /
+          clamp_min(sum(rate(assist_http_requests_total{service="decision-api",path="/v1/assist/decide"}[1h])), 0.001)
+
+      # ── Alerts ──────────────────────────────────────────────────────
+      - alert: DecisionApiHighErrorRate
+        expr: decision_api:error_rate_5m > 0.01
+        for: 10m
+        labels:
+          severity: critical
+          slo: availability
+          owner: platform_oncall
+        annotations:
+          summary: Decision API error rate above 1%
+          description: 5xx error ratio over 5m exceeds the 1% SLO budget.
+          runbook: docs/INCIDENT_RESPONSE_RUNBOOK.md#decisionapihigherrorrate
+
+      - alert: DecisionApiHighLatencyP95
+        expr: decision_api:latency_p95_5m > 1
+        for: 15m
+        labels:
+          severity: warning
+          slo: latency
+          owner: platform_oncall
+        annotations:
+          summary: Decision API p95 latency above 1s
+          description: p95 latency over 5m exceeds 1 second for 15 minutes.
+          runbook: docs/INCIDENT_RESPONSE_RUNBOOK.md#decisionapihighlatencyp95
+
+      - alert: DecisionApiHighLatencyP99
+        expr: decision_api:latency_p99_5m > 2
+        for: 10m
+        labels:
+          severity: critical
+          slo: latency
+          owner: platform_oncall
+        annotations:
+          summary: Decision API p99 latency above 2s
+          description: p99 latency over 5m exceeds 2 seconds — likely downstream timeout.
+          runbook: docs/INCIDENT_RESPONSE_RUNBOOK.md#decisionapihighlatencyp99
+
+      - alert: DecisionApiLowThroughput
+        expr: decision_api:throughput_rps_5m < 0.1 and decision_api:throughput_rps_1h > 1
+        for: 10m
+        labels:
+          severity: warning
+          slo: availability
+          owner: platform_oncall
+        annotations:
+          summary: Decision API throughput collapsed
+          description: Near-zero request rate despite historical traffic — possible upstream failure.
+          runbook: docs/INCIDENT_RESPONSE_RUNBOOK.md#decisionapilowthroughput
+
+      - alert: ModelServingHighErrorRate
+        expr: |
+          sum(rate(assist_http_requests_total{service="decision-model-serving",status=~"5.."}[5m]))
+          /
+          clamp_min(sum(rate(assist_http_requests_total{service="decision-model-serving"}[5m])), 0.001)
+          > 0.01
+        for: 10m
+        labels:
+          severity: warning
+          slo: availability
+          owner: model_oncall
+        annotations:
+          summary: Model serving error rate above 1%
+          description: Model serving endpoint is breaching 5xx SLO threshold.
+          runbook: docs/INCIDENT_RESPONSE_RUNBOOK.md#modelservinghigherrorrate
+
+      - alert: DecisionApiInputDriftDetected
+        expr: |
+          abs(decision_api:input_token_mean_1h - decision_api:input_token_mean_24h)
+          /
+          clamp_min(decision_api:input_token_mean_24h, 1)
+          > 0.30
+        for: 30m
+        labels:
+          severity: warning
+          slo: data-quality
+          owner: model_oncall
+        annotations:
+          summary: Decision API input distribution drift
+          description: Mean input token count drift exceeded 30% versus trailing 24h baseline.
+          runbook: docs/INCIDENT_RESPONSE_RUNBOOK.md#decisionapiinputdriftdetected
+
+      - alert: DecisionApiConfidenceDriftDetected
+        expr: |
+          abs(decision_api:confidence_mean_1h - decision_api:confidence_mean_24h) > 0.12
+        for: 30m
+        labels:
+          severity: warning
+          slo: data-quality
+          owner: model_oncall
+        annotations:
+          summary: Decision API confidence drift
+          description: Mean model confidence drift exceeded 0.12 against trailing 24h baseline.
+          runbook: docs/INCIDENT_RESPONSE_RUNBOOK.md#decisionapiconfidencedriftdetected
+
+      - alert: DecisionApiOutcomeDriftDetected
+        expr: |
+          abs(decision_api:escalation_rate_1h - decision_api:escalation_rate_24h) > 0.10
+        for: 30m
+        labels:
+          severity: warning
+          slo: data-quality
+          owner: model_oncall
+        annotations:
+          summary: Decision API outcome drift
+          description: Escalation-rate drift exceeded 0.10 versus trailing 24h baseline.
+          runbook: docs/INCIDENT_RESPONSE_RUNBOOK.md#decisionapioutcomedriftdetected
+
+      - alert: DecisionApiGuardrailFallbackSpike
+        expr: |
+          sum(rate(assist_model_guardrail_fallback_total{service="decision-api"}[10m])) > 0.05
+        for: 15m
+        labels:
+          severity: critical
+          slo: reliability
+          owner: model_oncall
+        annotations:
+          summary: Guardrail fallback spike detected
+          description: Forced handoff guardrail fallback rate is elevated, indicating model instability.
+          runbook: docs/INCIDENT_RESPONSE_RUNBOOK.md#decisionapiguardrailfallbackspike
+
+      - alert: DecisionApiHighHallucinationRate
+        expr: decision_api:hallucination_rate_mean_1h > 0.35
+        for: 15m
+        labels:
+          severity: critical
+          slo: quality
+          owner: model_oncall
+        annotations:
+          summary: Hallucination ratio above 35% threshold
+          description: Generated responses contain >35% ungrounded tokens. Investigate retrieval quality and generation prompt.
+          runbook: docs/INCIDENT_RESPONSE_RUNBOOK.md#decisionapihighhallucinationrate
+
+      - alert: DecisionApiLowFaithfulness
+        expr: decision_api:faithfulness_mean_1h < 0.5
+        for: 15m
+        labels:
+          severity: warning
+          slo: quality
+          owner: model_oncall
+        annotations:
+          summary: Generation faithfulness below 50%
+          description: Less than half of generated content is grounded in retrieved evidence.
+          runbook: docs/INCIDENT_RESPONSE_RUNBOOK.md#decisionapilowfaithfulness
+
+      - alert: DecisionApiHighAbstainRate
+        expr: decision_api:abstain_rate_1h > 0.35
+        for: 30m
+        labels:
+          severity: warning
+          slo: coverage
+          owner: model_oncall
+        annotations:
+          summary: Abstain rate exceeds 35% quality gate
+          description: Model is declining to answer >35% of requests. Possible data coverage gap.
+          runbook: docs/INCIDENT_RESPONSE_RUNBOOK.md#decisionapihighabstainrate
+
+      - alert: DecisionApiHighInjectionRate
+        expr: decision_api:injection_block_rate_1h > 0.10
+        for: 15m
+        labels:
+          severity: critical
+          slo: security
+          owner: platform_oncall
+        annotations:
+          summary: Prompt injection block rate above 10%
+          description: >10% of requests triggering injection defense. Possible coordinated attack.
+          runbook: docs/INCIDENT_RESPONSE_RUNBOOK.md#decisionapihighinjectionrate
+
+      - alert: CircuitBreakerOpen
+        expr: assist_circuit_breaker_state > 0
+        for: 2m
+        labels:
+          severity: critical
+          slo: reliability
+          owner: platform_oncall
+        annotations:
+          summary: "Circuit breaker open for {{ $labels.target }}"
+          description: Downstream dependency circuit breaker tripped. Requests are being short-circuited.
+          runbook: docs/INCIDENT_RESPONSE_RUNBOOK.md#circuitbreakeropen

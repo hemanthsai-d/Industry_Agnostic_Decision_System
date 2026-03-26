@@ -1,0 +1,144 @@
+{
+  "generated_at_utc": "2026-02-18T00:23:35.677308+00:00",
+  "window": {
+    "current_start": "2026-01-22",
+    "current_end": "2026-02-18",
+    "baseline_start": "2025-12-25",
+    "baseline_end": "2026-01-21"
+  },
+  "filters": {
+    "tenant_id": null,
+    "section": null,
+    "model_variant": "primary"
+  },
+  "rows": [
+    {
+      "kpi_name": "agent_weekly_active_usage_pct",
+      "comparator": "gte",
+      "target_value": 0.7,
+      "unit": "ratio",
+      "description": "Weekly active usage = active reviewers / active agents",
+      "actual_value": 0.0,
+      "status": "fail",
+      "details": {
+        "active_agents_7d": 43,
+        "active_reviewers_7d": 0
+      }
+    },
+    {
+      "kpi_name": "assisted_coverage_pct",
+      "comparator": "gte",
+      "target_value": 0.8,
+      "unit": "ratio",
+      "description": "Assisted coverage = assisted eligible tickets / eligible tickets",
+      "actual_value": 1.865991661703395,
+      "status": "pass",
+      "details": {
+        "eligible_tickets": 3358,
+        "assisted_requests": 6266
+      }
+    },
+    {
+      "kpi_name": "ece",
+      "comparator": "lte",
+      "target_value": 0.1,
+      "unit": "ratio",
+      "description": "Expected Calibration Error",
+      "actual_value": null,
+      "status": "insufficient_data",
+      "details": {
+        "ece_bins": 0
+      }
+    },
+    {
+      "kpi_name": "escalation_precision_pct",
+      "comparator": "gte",
+      "target_value": 0.8,
+      "unit": "ratio",
+      "description": "Escalation precision for labeled decisions",
+      "actual_value": null,
+      "status": "insufficient_data",
+      "details": {
+        "predicted_escalations": null,
+        "true_positive_escalations": null
+      }
+    },
+    {
+      "kpi_name": "escalation_rate_reduction_pct",
+      "comparator": "gte",
+      "target_value": 0.2,
+      "unit": "ratio",
+      "description": "Escalation rate reduction vs baseline window",
+      "actual_value": null,
+      "status": "insufficient_data",
+      "details": {
+        "current_escalation_rate": null,
+        "baseline_escalation_rate": null
+      }
+    },
+    {
+      "kpi_name": "escalation_recall_pct",
+      "comparator": "gte",
+      "target_value": 0.75,
+      "unit": "ratio",
+      "description": "Escalation recall for labeled decisions",
+      "actual_value": null,
+      "status": "insufficient_data",
+      "details": {
+        "actual_escalations": null,
+        "true_positive_escalations": null
+      }
+    },
+    {
+      "kpi_name": "feedback_completeness_pct",
+      "comparator": "gte",
+      "target_value": 0.95,
+      "unit": "ratio",
+      "description": "Closed handoffs with reviewer outcomes",
+      "actual_value": null,
+      "status": "insufficient_data",
+      "details": {
+        "closed_handoffs": 0,
+        "closed_with_outcome": 0
+      }
+    },
+    {
+      "kpi_name": "median_handling_time_reduction_pct",
+      "comparator": "gte",
+      "target_value": 0.25,
+      "unit": "ratio",
+      "description": "Median handling time reduction vs baseline",
+      "actual_value": null,
+      "status": "insufficient_data",
+      "details": {
+        "current_p50_seconds": null,
+        "baseline_p50_seconds": null
+      }
+    },
+    {
+      "kpi_name": "p90_handling_time_reduction_pct",
+      "comparator": "gte",
+      "target_value": 0.15,
+      "unit": "ratio",
+      "description": "P90 handling time reduction vs baseline",
+      "actual_value": null,
+      "status": "insufficient_data",
+      "details": {
+        "current_p90_seconds": null,
+        "baseline_p90_seconds": null
+      }
+    },
+    {
+      "kpi_name": "top1_route_accuracy_pct",
+      "comparator": "gte",
+      "target_value": 0.85,
+      "unit": "ratio",
+      "description": "Top-1 route accuracy for labeled decisions",
+      "actual_value": null,
+      "status": "insufficient_data",
+      "details": {
+        "labeled_samples": 0
+      }
+    }
+  ]
+}

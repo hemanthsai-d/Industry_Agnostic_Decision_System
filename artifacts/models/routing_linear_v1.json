@@ -1,0 +1,53 @@
+{
+  "model_type": "linear_bow_multiclass_v1",
+  "version": "1.0.0",
+  "labels": [
+    "refund_duplicate_charge",
+    "account_access_recovery",
+    "shipping_delay_resolution",
+    "technical_bug_triage",
+    "general_support_triage"
+  ],
+  "bias": {
+    "refund_duplicate_charge": 0.35,
+    "account_access_recovery": 0.25,
+    "shipping_delay_resolution": 0.25,
+    "technical_bug_triage": 0.25,
+    "general_support_triage": 0.15
+  },
+  "token_weights": {
+    "refund": {"refund_duplicate_charge": 2.3, "general_support_triage": 0.2},
+    "charged": {"refund_duplicate_charge": 1.7},
+    "charge": {"refund_duplicate_charge": 1.2},
+    "duplicate": {"refund_duplicate_charge": 1.8},
+    "twice": {"refund_duplicate_charge": 1.6},
+    "billing": {"refund_duplicate_charge": 0.7},
+
+    "password": {"account_access_recovery": 2.2},
+    "login": {"account_access_recovery": 1.8},
+    "locked": {"account_access_recovery": 1.8},
+    "reset": {"account_access_recovery": 1.6},
+    "access": {"account_access_recovery": 1.4},
+    "account": {"account_access_recovery": 1.0},
+
+    "shipping": {"shipping_delay_resolution": 2.0},
+    "delay": {"shipping_delay_resolution": 2.1},
+    "delivery": {"shipping_delay_resolution": 1.7},
+    "carrier": {"shipping_delay_resolution": 1.6},
+    "package": {"shipping_delay_resolution": 1.2},
+    "tracking": {"shipping_delay_resolution": 1.1},
+
+    "error": {"technical_bug_triage": 1.9},
+    "bug": {"technical_bug_triage": 2.1},
+    "crash": {"technical_bug_triage": 2.0},
+    "failed": {"technical_bug_triage": 1.6},
+    "failure": {"technical_bug_triage": 1.6},
+    "timeout": {"technical_bug_triage": 1.4},
+
+    "help": {"general_support_triage": 1.2},
+    "support": {"general_support_triage": 1.2},
+    "question": {"general_support_triage": 1.1},
+    "request": {"general_support_triage": 0.8},
+    "assistance": {"general_support_triage": 1.0}
+  }
+}

@@ -1,0 +1,118 @@
+# Local (kind) environment overrides for decision-platform Helm chart.
+# Designed for local Kubernetes development — minimal resources, no TLS, NodePort access.
+
+replicaCount: 1
+
+image:
+  repository: decision-api
+  tag: local
+  pullPolicy: Never  # Use locally loaded images (kind load docker-image)
+
+modelServer:
+  enabled: true
+  replicaCount: 1
+  image:
+    repository: model-server
+    tag: local
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 256Mi
+  autoscaling:
+    enabled: false
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 256Mi
+
+autoscaling:
+  enabled: false
+
+service:
+  type: NodePort
+  port: 8000
+  nodePort: 30080
+
+canary:
+  enabled: false
+  weight: 0
+
+opa:
+  enabled: false  # Run OPA via docker-compose instead if needed
+
+# Secrets disabled for local/CI environments (no external secret store)
+secretRef: ""
+
+env:
+  APP_ENV: local
+  AUTH_ENABLED: "false"
+  USE_POSTGRES: "true"
+  USE_REDIS: "true"
+  RATE_LIMIT_ENABLED: "false"
+  METRICS_ENABLED: "true"
+  TRACING_ENABLED: "false"
+  PII_REDACTION_ENABLED: "true"
+  MODEL_SHADOW_ENABLED: "false"
+  GENERATION_BACKEND: template
+  ROUTING_MODEL_BACKEND: heuristic
+  # Service names match Helm-generated names: <release-name>-postgresql, <release-name>-redis-master
+  POSTGRES_DSN: "postgresql+psycopg://postgres:postgres@decision-api-postgresql:5432/decision_db"
+  REDIS_URL: "redis://decision-api-redis-master:6379/0"
+
+ingress:
+  enabled: false  # Use NodePort for local access
+
+podDisruptionBudget:
+  minAvailable: 0
+
+# Remove topology constraints for single-node local cluster
+topologySpreadConstraints: []
+
+podSecurityContext: {}
+
+containerSecurityContext:
+  readOnlyRootFilesystem: false
+
+# Network policy disabled for local dev
+networkPolicy:
+  enabled: false
+
+# PostgreSQL subchart — lightweight local config
+postgresql:
+  enabled: true
+  auth:
+    postgresPassword: postgres
+    database: decision_db
+  primary:
+    persistence:
+      size: 1Gi
+      storageClass: standard
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+  image:
+    repository: pgvector/pgvector
+    tag: pg16
+
+# Redis subchart — lightweight local config
+redis:
+  enabled: true
+  auth:
+    enabled: false
+  master:
+    persistence:
+      size: 256Mi
+    resources:
+      requests:
+        cpu: 50m
+        memory: 64Mi
+
+environment: local
