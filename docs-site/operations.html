@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Operations &amp; Alerts — AI Decision Platform</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧠</text></svg>">
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="navbar-inner">
+    <a href="index.html" class="navbar-brand"><span class="logo-icon">🧠</span> Decision Platform</a>
+    <button class="mobile-toggle" onclick="document.querySelector('.navbar-links').classList.toggle('open')">☰</button>
+    <ul class="navbar-links">
+      <li><a href="index.html">Overview</a></li>
+      <li><a href="architecture.html">Architecture</a></li>
+      <li><a href="monitoring.html">Monitoring</a></li>
+      <li><a href="ml-ops.html">ML Ops</a></li>
+      <li><a href="security.html">Security</a></li>
+      <li><a href="operations.html" class="active">Operations</a></li>
+      <li><a href="api.html">API</a></li>
+    </ul>
+  </div>
+</nav>
+
+<section style="padding-top: 120px;">
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="section-tag">Reliability &amp; Uptime</span>
+      <h2>Operations &amp; Alerting</h2>
+      <p>When something goes wrong, the right person is notified within minutes.
+         This section shows how alerts flow, who's on-call, and how incidents are resolved.</p>
+    </div>
+
+    <div class="stats-grid reveal">
+      <div class="stat-card">
+        <span class="stat-number">14</span>
+        <span class="stat-label">Alert Rules</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-number">4</span>
+        <span class="stat-label">Severity Routes</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-number">5 min</span>
+        <span class="stat-label">First Escalation</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-number">99.9%</span>
+        <span class="stat-label">SLO Target</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== ALERT ROUTING ===== -->
+<section style="background: var(--bg-surface);">
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="section-tag">AlertManager</span>
+      <h2>Alert Routing Architecture</h2>
+      <p>Alerts from Prometheus are routed to the right team based on severity and category.
+         Critical issues page immediately; warnings create tickets.</p>
+    </div>
+
+    <div class="pipeline-flow reveal">
+      <div class="pipeline-step">
+        <div class="step-number">⚡</div>
+        <h4>Prometheus</h4>
+        <p>Detects anomaly</p>
+      </div>
+      <div class="pipeline-arrow">→</div>
+      <div class="pipeline-step">
+        <div class="step-number">📡</div>
+        <h4>AlertManager</h4>
+        <p>Routes by severity</p>
+      </div>
+      <div class="pipeline-arrow">→</div>
+      <div class="pipeline-step">
+        <div class="step-number">👥</div>
+        <h4>On-Call Team</h4>
+        <p>Gets paged</p>
+      </div>
+      <div class="pipeline-arrow">→</div>
+      <div class="pipeline-step">
+        <div class="step-number">🔧</div>
+        <h4>Resolution</h4>
+        <p>Fix &amp; verify</p>
+      </div>
+    </div>
+
+    <div class="dashboard-panel reveal" style="margin-top: 2rem;">
+      <div class="panel-header">
+        <span class="panel-title">📡 Alert Routing Table</span>
+      </div>
+      <div class="panel-body">
+        <div style="overflow-x:auto;">
+          <table class="alert-table" style="width:100%;">
+            <thead>
+              <tr><th>Receiver</th><th>Severity</th><th>Target Team</th><th>Action</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>ops-pager-critical</code></td>
+                <td><span class="badge badge-danger">CRITICAL</span></td>
+                <td>Operations</td>
+                <td>📱 Immediate page via PagerDuty/OpsGenie</td>
+              </tr>
+              <tr>
+                <td><code>model-oncall-warning</code></td>
+                <td><span class="badge badge-warning">WARNING</span></td>
+                <td>ML/Model Team</td>
+                <td>📧 Slack + email, 15 min escalation</td>
+              </tr>
+              <tr>
+                <td><code>platform-oncall-warning</code></td>
+                <td><span class="badge badge-warning">WARNING</span></td>
+                <td>Platform Team</td>
+                <td>📧 Slack + email, 15 min escalation</td>
+              </tr>
+              <tr>
+                <td><code>ops-ticket</code></td>
+                <td><span class="badge badge-info">INFO</span></td>
+                <td>Operations</td>
+                <td>📝 Creates a Jira/Linear ticket</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== ALL ALERT RULES ===== -->
+<section>
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="section-tag">Prometheus Rules</span>
+      <h2>14 Alert Rules</h2>
+      <p>Each rule monitors a specific metric and fires an alert when the threshold is breached.
+         Rules are grouped by what they protect.</p>
+    </div>
+
+    <div class="dashboard-panel reveal">
+      <div class="panel-header">
+        <span class="panel-title">🔴 Critical Alerts — Page Immediately</span>
+      </div>
+      <div class="panel-body">
+        <div style="overflow-x:auto;">
+          <table class="alert-table" style="width:100%;">
+            <thead><tr><th>Alert</th><th>Condition</th><th>What It Means</th></tr></thead>
+            <tbody>
+              <tr>
+                <td><code>HighErrorRate</code></td>
+                <td>Error rate &gt; 5% for 5 min</td>
+                <td>Too many customer requests are failing</td>
+              </tr>
+              <tr>
+                <td><code>HighP95Latency</code></td>
+                <td>P95 latency &gt; 2s for 5 min</td>
+                <td>Customers are waiting too long for responses</td>
+              </tr>
+              <tr>
+                <td><code>HealthCheckFailing</code></td>
+                <td>Health endpoint down for 3 min</td>
+                <td>The main application is unresponsive</td>
+              </tr>
+              <tr>
+                <td><code>OPAQueryFailure</code></td>
+                <td>&gt; 1% OPA failures for 5 min</td>
+                <td>Business policy engine is failing</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="dashboard-panel reveal" style="margin-top: 1.5rem;">
+      <div class="panel-header">
+        <span class="panel-title">🟡 Model / ML Alerts</span>
+      </div>
+      <div class="panel-body">
+        <div style="overflow-x:auto;">
+          <table class="alert-table" style="width:100%;">
+            <thead><tr><th>Alert</th><th>Condition</th><th>What It Means</th></tr></thead>
+            <tbody>
+              <tr>
+                <td><code>HighAbstainRate</code></td>
+                <td>Abstain rate &gt; 40% for 15 min</td>
+                <td>AI is unsure too often — may need retraining</td>
+              </tr>
+              <tr>
+                <td><code>LowRoutingAccuracy</code></td>
+                <td>Accuracy below 70% for 30 min</td>
+                <td>AI is misrouting customer issues</td>
+              </tr>
+              <tr>
+                <td><code>HighNegativeFeedbackRate</code></td>
+                <td>Negative feedback &gt; 30% for 30 min</td>
+                <td>Human agents disagree with AI too often</td>
+              </tr>
+              <tr>
+                <td><code>ModelDriftDetected</code></td>
+                <td>Drift score &gt; 0.3</td>
+                <td>Input data is changing — model may be stale</td>
+              </tr>
+              <tr>
+                <td><code>CanaryRolloutFailing</code></td>
+                <td>Canary error &gt; 5%</td>
+                <td>New model version has issues</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="dashboard-panel reveal" style="margin-top: 1.5rem;">
+      <div class="panel-header">
+        <span class="panel-title">🔵 Platform / Infrastructure Alerts</span>
+      </div>
+      <div class="panel-body">
+        <div style="overflow-x:auto;">
+          <table class="alert-table" style="width:100%;">
+            <thead><tr><th>Alert</th><th>Condition</th><th>What It Means</th></tr></thead>
+            <tbody>
+              <tr>
+                <td><code>RedisConnectionErrors</code></td>
+                <td>Redis errors &gt; 0 for 5 min</td>
+                <td>Cache/rate-limiter backend is unhealthy</td>
+              </tr>
+              <tr>
+                <td><code>DatabaseConnectionPool</code></td>
+                <td>Pool &gt; 80% utilized</td>
+                <td>Running out of database connections</td>
+              </tr>
+              <tr>
+                <td><code>EmbeddingServiceDown</code></td>
+                <td>Embedding failures for 5 min</td>
+                <td>AI can't convert text to vectors</td>
+              </tr>
+              <tr>
+                <td><code>HighRateLimitRejections</code></td>
+                <td>&gt; 50 rejections/min</td>
+                <td>Possible abuse or misconfigured client</td>
+              </tr>
+              <tr>
+                <td><code>DiskSpaceLow</code></td>
+                <td>&lt; 10% free disk</td>
+                <td>Server may run out of storage</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== ON-CALL STRUCTURE ===== -->
+<section style="background: var(--bg-surface);">
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="section-tag">People</span>
+      <h2>On-Call Structure</h2>
+      <p>Different types of problems need different experts. The system routes alerts to the team that can fix them fastest.</p>
+    </div>
+
+    <div class="grid-2 reveal">
+      <div class="card" style="border-top: 3px solid var(--danger);">
+        <div class="card-icon red">🚒</div>
+        <h3>Platform On-Call</h3>
+        <p>Handles infrastructure issues: servers, databases, networking, deployment.</p>
+        <ul style="font-size:0.9rem;margin-top:0.75rem;color:var(--text-muted);">
+          <li>Redis failures</li>
+          <li>Database pool exhaustion</li>
+          <li>Health check failures</li>
+          <li>Disk space alerts</li>
+        </ul>
+      </div>
+      <div class="card" style="border-top: 3px solid var(--warning);">
+        <div class="card-icon orange">🤖</div>
+        <h3>Model On-Call</h3>
+        <p>Handles AI/ML issues: accuracy, drift, escalation rates, model performance.</p>
+        <ul style="font-size:0.9rem;margin-top:0.75rem;color:var(--text-muted);">
+          <li>High abstain rate</li>
+          <li>Low routing accuracy</li>
+          <li>Model drift detected</li>
+          <li>Canary rollout failures</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="grid-2 reveal" style="margin-top:1.5rem;">
+      <div class="card" style="border-top: 3px solid var(--accent);">
+        <div class="card-icon blue">🎖️</div>
+        <h3>Incident Commander</h3>
+        <p>Leads the response for major incidents. Coordinates teams, communicates to stakeholders, makes decisions.</p>
+      </div>
+      <div class="card" style="border-top: 3px solid var(--purple);">
+        <div class="card-icon purple">📝</div>
+        <h3>Scribe</h3>
+        <p>Documents the incident timeline, actions taken, and outcomes. Ensures nothing is forgotten during the chaos.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== ESCALATION TIMELINE ===== -->
+<section>
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="section-tag">Response Times</span>
+      <h2>Escalation Timeline</h2>
+      <p>If an alert isn't acknowledged, it automatically escalates to more people at fixed intervals.</p>
+    </div>
+
+    <div class="timeline reveal">
+      <div class="timeline-item">
+        <div class="timeline-marker green"></div>
+        <div class="timeline-content">
+          <h4>0 min — Alert Fires</h4>
+          <p>Prometheus detects the issue and sends it to AlertManager.</p>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-marker blue"></div>
+        <div class="timeline-content">
+          <h4>0 min — Team Paged</h4>
+          <p>On-call engineer receives a page/notification on their phone.</p>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-marker orange"></div>
+        <div class="timeline-content">
+          <h4>5 min — First Escalation</h4>
+          <p>If no response, the alert is sent to a backup on-call engineer and the team Slack channel.</p>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-marker orange"></div>
+        <div class="timeline-content">
+          <h4>15 min — Manager Escalation</h4>
+          <p>If still unacknowledged, the engineering manager and incident commander are looped in.</p>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-marker red"></div>
+        <div class="timeline-content">
+          <h4>30 min — Executive Escalation</h4>
+          <p>If no progress, leadership is notified. All hands on deck.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== INCIDENT RESPONSE ===== -->
+<section style="background: var(--bg-surface);">
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="section-tag">Runbook</span>
+      <h2>Incident Response Process</h2>
+      <p>A structured approach to handling incidents — from detection to post-mortem.</p>
+    </div>
+
+    <div class="pipeline-flow reveal">
+      <div class="pipeline-step">
+        <div class="step-number">1</div>
+        <h4>Detect</h4>
+        <p>Alert triggers</p>
+      </div>
+      <div class="pipeline-arrow">→</div>
+      <div class="pipeline-step">
+        <div class="step-number">2</div>
+        <h4>Triage</h4>
+        <p>Assess severity</p>
+      </div>
+      <div class="pipeline-arrow">→</div>
+      <div class="pipeline-step">
+        <div class="step-number">3</div>
+        <h4>Mitigate</h4>
+        <p>Stop the bleeding</p>
+      </div>
+      <div class="pipeline-arrow">→</div>
+      <div class="pipeline-step">
+        <div class="step-number">4</div>
+        <h4>Fix</h4>
+        <p>Deploy the fix</p>
+      </div>
+      <div class="pipeline-arrow">→</div>
+      <div class="pipeline-step">
+        <div class="step-number">5</div>
+        <h4>Post-Mortem</h4>
+        <p>Learn &amp; improve</p>
+      </div>
+    </div>
+
+    <div class="grid-2 reveal" style="margin-top:2rem;">
+      <div class="dashboard-panel">
+        <div class="panel-header">
+          <span class="panel-title">🔄 Quick Rollback Procedures</span>
+        </div>
+        <div class="panel-body">
+          <div class="code-block"># Model rollback (revert to previous version)
+./scripts/promote_canary.py --rollback
+
+# Full application rollback (Docker)
+docker compose down
+git checkout HEAD~1
+docker compose up -d
+
+# Database rollback
+./scripts/migrate.py --rollback
+
+# Knowledge base rollback
+curl -X POST /v1/admin/reload-chunks \
+  -H "Authorization: Bearer $TOKEN"</div>
+        </div>
+      </div>
+
+      <div class="dashboard-panel">
+        <div class="panel-header">
+          <span class="panel-title">📊 Severity Levels</span>
+        </div>
+        <div class="panel-body">
+          <div style="margin-bottom:1rem;">
+            <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.75rem;">
+              <span class="badge badge-danger" style="min-width:60px;text-align:center;">SEV-1</span>
+              <span style="font-size:0.9rem;">Complete service outage — all customers affected</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.75rem;">
+              <span class="badge badge-warning" style="min-width:60px;text-align:center;">SEV-2</span>
+              <span style="font-size:0.9rem;">Major degradation — some features unavailable</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.75rem;">
+              <span class="badge badge-info" style="min-width:60px;text-align:center;">SEV-3</span>
+              <span style="font-size:0.9rem;">Minor issue — workaround available</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:0.5rem;">
+              <span class="badge badge-success" style="min-width:60px;text-align:center;">SEV-4</span>
+              <span style="font-size:0.9rem;">Cosmetic — no customer impact</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== LOAD TEST RESULTS ===== -->
+<section>
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="section-tag">Performance</span>
+      <h2>Load Test Results</h2>
+      <p>The system has been load tested to verify it meets performance requirements under pressure.</p>
+    </div>
+
+    <div class="stats-grid reveal">
+      <div class="stat-card">
+        <span class="stat-number">2,319</span>
+        <span class="stat-label">Total Requests</span>
+      </div>
+      <div class="stat-card" style="border-color:var(--success);">
+        <span class="stat-number" style="color:var(--success);">0%</span>
+        <span class="stat-label">Error Rate</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-number">55.5ms</span>
+        <span class="stat-label">P50 Latency</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-number">101.8ms</span>
+        <span class="stat-label">P95 Latency</span>
+      </div>
+    </div>
+
+    <div class="dashboard-panel reveal" style="margin-top: 2rem;">
+      <div class="panel-header">
+        <span class="panel-title">📈 Latency Distribution</span>
+      </div>
+      <div class="panel-body" style="padding:0;">
+        <svg viewBox="0 0 800 250" style="width:100%;height:auto;">
+          <defs>
+            <linearGradient id="latencyGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#6366f1" stop-opacity="0.3"/>
+              <stop offset="100%" stop-color="#6366f1" stop-opacity="0.05"/>
+            </linearGradient>
+          </defs>
+          <g transform="translate(60,20)">
+            <!-- Grid lines -->
+            <line x1="0" y1="0" x2="700" y2="0" stroke="#334155" stroke-dasharray="4"/>
+            <line x1="0" y1="50" x2="700" y2="50" stroke="#334155" stroke-dasharray="4"/>
+            <line x1="0" y1="100" x2="700" y2="100" stroke="#334155" stroke-dasharray="4"/>
+            <line x1="0" y1="150" x2="700" y2="150" stroke="#334155" stroke-dasharray="4"/>
+            <line x1="0" y1="200" x2="700" y2="200" stroke="#334155"/>
+            <!-- Y axis labels -->
+            <text x="-10" y="5" fill="#94a3b8" text-anchor="end" font-size="11">200ms</text>
+            <text x="-10" y="55" fill="#94a3b8" text-anchor="end" font-size="11">150ms</text>
+            <text x="-10" y="105" fill="#94a3b8" text-anchor="end" font-size="11">100ms</text>
+            <text x="-10" y="155" fill="#94a3b8" text-anchor="end" font-size="11">50ms</text>
+            <text x="-10" y="205" fill="#94a3b8" text-anchor="end" font-size="11">0ms</text>
+            <!-- Distribution bars (histogram-like) -->
+            <rect x="50" y="180" width="40" height="20" fill="#6366f1" rx="2" opacity="0.4"/>
+            <rect x="100" y="160" width="40" height="40" fill="#6366f1" rx="2" opacity="0.5"/>
+            <rect x="150" y="120" width="40" height="80" fill="#6366f1" rx="2" opacity="0.6"/>
+            <rect x="200" y="70" width="40" height="130" fill="#6366f1" rx="2" opacity="0.8"/>
+            <rect x="250" y="40" width="40" height="160" fill="#6366f1" rx="2" opacity="1"/>
+            <rect x="300" y="60" width="40" height="140" fill="#6366f1" rx="2" opacity="0.9"/>
+            <rect x="350" y="90" width="40" height="110" fill="#6366f1" rx="2" opacity="0.7"/>
+            <rect x="400" y="120" width="40" height="80" fill="#6366f1" rx="2" opacity="0.6"/>
+            <rect x="450" y="150" width="40" height="50" fill="#6366f1" rx="2" opacity="0.5"/>
+            <rect x="500" y="170" width="40" height="30" fill="#6366f1" rx="2" opacity="0.4"/>
+            <rect x="550" y="185" width="40" height="15" fill="#6366f1" rx="2" opacity="0.3"/>
+            <rect x="600" y="192" width="40" height="8" fill="#6366f1" rx="2" opacity="0.2"/>
+            <!-- P50 line -->
+            <line x1="245" y1="0" x2="245" y2="200" stroke="#22c55e" stroke-width="2" stroke-dasharray="6 3"/>
+            <text x="245" y="-5" fill="#22c55e" text-anchor="middle" font-size="11" font-weight="600">P50: 55.5ms</text>
+            <!-- P95 line -->
+            <line x1="480" y1="0" x2="480" y2="200" stroke="#f59e0b" stroke-width="2" stroke-dasharray="6 3"/>
+            <text x="480" y="-5" fill="#f59e0b" text-anchor="middle" font-size="11" font-weight="600">P95: 101.8ms</text>
+            <!-- X labels -->
+            <text x="70" y="220" fill="#94a3b8" font-size="10" text-anchor="middle">10ms</text>
+            <text x="170" y="220" fill="#94a3b8" font-size="10" text-anchor="middle">30ms</text>
+            <text x="270" y="220" fill="#94a3b8" font-size="10" text-anchor="middle">55ms</text>
+            <text x="370" y="220" fill="#94a3b8" font-size="10" text-anchor="middle">80ms</text>
+            <text x="470" y="220" fill="#94a3b8" font-size="10" text-anchor="middle">100ms</text>
+            <text x="570" y="220" fill="#94a3b8" font-size="10" text-anchor="middle">130ms</text>
+          </g>
+        </svg>
+      </div>
+    </div>
+
+    <div class="grid-3 reveal" style="margin-top: 1.5rem;">
+      <div class="card">
+        <div class="card-icon green">✅</div>
+        <h3>Zero Errors</h3>
+        <p>All 2,319 requests completed successfully under load. No timeouts, no crashes, no 5xx responses.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon blue">⚡</div>
+        <h3>Fast Response</h3>
+        <p>Half of all requests complete in under 55ms — faster than a blink of an eye.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon purple">📊</div>
+        <h3>Consistent</h3>
+        <p>Even at P95, latency stays under 102ms — no unpredictable slowdowns.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== NON-FUNCTIONAL TESTS ===== -->
+<section style="background: var(--bg-surface);">
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="section-tag">Quality Gates</span>
+      <h2>Non-Functional Validation</h2>
+      <p>Before any release, the system must pass these automated checks to ensure it meets operational standards.</p>
+    </div>
+
+    <div class="grid-2 reveal">
+      <div class="dashboard-panel">
+        <div class="panel-header">
+          <span class="panel-title">✅ Checks That Must Pass</span>
+        </div>
+        <div class="panel-body">
+          <div class="progress-item">
+            <div class="progress-label"><span>📊 Prometheus /metrics available</span><span class="badge badge-success">PASS</span></div>
+            <div class="progress-bar"><div class="progress-fill green" style="width: 100%"></div></div>
+          </div>
+          <div class="progress-item">
+            <div class="progress-label"><span>❤️ /health endpoint responds</span><span class="badge badge-success">PASS</span></div>
+            <div class="progress-bar"><div class="progress-fill green" style="width: 100%"></div></div>
+          </div>
+          <div class="progress-item">
+            <div class="progress-label"><span>👋 /ready endpoint responds</span><span class="badge badge-success">PASS</span></div>
+            <div class="progress-bar"><div class="progress-fill green" style="width: 100%"></div></div>
+          </div>
+          <div class="progress-item">
+            <div class="progress-label"><span>🔔 Alert rules are loaded</span><span class="badge badge-success">PASS</span></div>
+            <div class="progress-bar"><div class="progress-fill green" style="width: 100%"></div></div>
+          </div>
+          <div class="progress-item">
+            <div class="progress-label"><span>📡 AlertManager receivers configured</span><span class="badge badge-success">PASS</span></div>
+            <div class="progress-bar"><div class="progress-fill green" style="width: 100%"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="dashboard-panel">
+        <div class="panel-header">
+          <span class="panel-title">📐 Automated Policies</span>
+        </div>
+        <div class="panel-body">
+          <div class="progress-item">
+            <div class="progress-label"><span>🧪 Structured logging (JSON)</span><span class="badge badge-success">PASS</span></div>
+            <div class="progress-bar"><div class="progress-fill green" style="width: 100%"></div></div>
+          </div>
+          <div class="progress-item">
+            <div class="progress-label"><span>🔍 Trace ID propagation</span><span class="badge badge-success">PASS</span></div>
+            <div class="progress-bar"><div class="progress-fill green" style="width: 100%"></div></div>
+          </div>
+          <div class="progress-item">
+            <div class="progress-label"><span>📈 Custom metrics published</span><span class="badge badge-success">PASS</span></div>
+            <div class="progress-bar"><div class="progress-fill green" style="width: 100%"></div></div>
+          </div>
+          <div class="progress-item">
+            <div class="progress-label"><span>🏷️ Release version labeling</span><span class="badge badge-success">PASS</span></div>
+            <div class="progress-bar"><div class="progress-fill green" style="width: 100%"></div></div>
+          </div>
+          <div class="progress-item">
+            <div class="progress-label"><span>🔀 Graceful shutdown</span><span class="badge badge-success">PASS</span></div>
+            <div class="progress-bar"><div class="progress-fill green" style="width: 100%"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="container">
+    <div class="page-nav">
+      <a href="security.html"><div><span class="nav-label">← Previous</span><span class="nav-title">Security</span></div></a>
+      <a href="api.html"><div><span class="nav-label">Next →</span><span class="nav-title">API Reference</span></div></a>
+    </div>
+    <p style="margin-top:2rem">AI Decision Platform — Industry-Agnostic Customer Support Intelligence</p>
+  </div>
+</footer>
+
+<script>
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('visible'); });
+}, { threshold: 0.1 });
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>

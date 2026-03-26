@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ML Operations — AI Decision Platform</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧠</text></svg>">
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="navbar-inner">
+    <a href="index.html" class="navbar-brand"><span class="logo-icon">🧠</span> Decision Platform</a>
+    <button class="mobile-toggle" onclick="document.querySelector('.navbar-links').classList.toggle('open')">☰</button>
+    <ul class="navbar-links">
+      <li><a href="index.html">Overview</a></li>
+      <li><a href="architecture.html">Architecture</a></li>
+      <li><a href="monitoring.html">Monitoring</a></li>
+      <li><a href="ml-ops.html" class="active">ML Ops</a></li>
+      <li><a href="security.html">Security</a></li>
+      <li><a href="operations.html">Operations</a></li>
+      <li><a href="api.html">API</a></li>
+    </ul>
+  </div>
+</nav>
+
+<section style="padding-top: 120px;">
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="section-tag">Machine Learning Operations</span>
+      <h2>How the AI Models Are Managed</h2>
+      <p>The platform doesn't just deploy a model and forget about it. It continuously evaluates, tests,
+         and improves models through a structured lifecycle — like a quality control process for AI.</p>
+    </div>
+
+    <!-- Key Stats -->
+    <div class="stats-grid reveal">
+      <div class="stat-card">
+        <span class="stat-number">30</span>
+        <span class="stat-label">Intent Categories</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-number">5</span>
+        <span class="stat-label">Promotion Stages</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-number">4</span>
+        <span class="stat-label">Quality Gates</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-number">Daily</span>
+        <span class="stat-label">Evaluation Cadence</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== MODEL LIFECYCLE ===== -->
+<section style="background: var(--bg-surface);">
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="section-tag">Lifecycle</span>
+      <h2>Model Deployment Lifecycle</h2>
+      <p>New models don't go from training straight to production. They go through a careful 5-stage
+         process to make sure they perform well before serving real customers.</p>
+    </div>
+
+    <div class="pipeline reveal">
+      <div class="pipeline-step">
+        <span class="step-icon">🧪</span>
+        <span class="step-label">Shadow Mode</span>
+        <span class="step-time">0% traffic</span>
+      </div>
+      <span class="pipeline-arrow">→</span>
+      <div class="pipeline-step">
+        <span class="step-icon">🔬</span>
+        <span class="step-label">Canary 5%</span>
+        <span class="step-time">5% traffic</span>
+      </div>
+      <span class="pipeline-arrow">→</span>
+      <div class="pipeline-step">
+        <span class="step-icon">📊</span>
+        <span class="step-label">Canary 25%</span>
+        <span class="step-time">25% traffic</span>
+      </div>
+      <span class="pipeline-arrow">→</span>
+      <div class="pipeline-step">
+        <span class="step-icon">⚖️</span>
+        <span class="step-label">Canary 50%</span>
+        <span class="step-time">50% traffic</span>
+      </div>
+      <span class="pipeline-arrow">→</span>
+      <div class="pipeline-step" style="border-color: var(--success);">
+        <span class="step-icon">🚀</span>
+        <span class="step-label">Full Production</span>
+        <span class="step-time">100% traffic</span>
+      </div>
+    </div>
+
+    <div class="grid-2 reveal" style="margin-top: 2rem;">
+      <div class="card">
+        <div class="card-icon purple">🧪</div>
+        <h3>Stage 1: Shadow Mode</h3>
+        <p><strong>What happens:</strong> The new model runs alongside the current one, but its predictions are only <em>logged</em>, not used. Real customers still get answers from the old model.</p>
+        <p><strong>Why:</strong> We can compare the new model's accuracy against the current one without any risk.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon blue">🔬</div>
+        <h3>Stage 2-4: Canary Rollout</h3>
+        <p><strong>What happens:</strong> The new model gradually serves 5% → 25% → 50% of real traffic. At each stage, quality gates are checked before increasing.</p>
+        <p><strong>Why:</strong> If the model has issues, only a small percentage of customers are affected, and we catch problems early.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== CANARY BUCKETING ===== -->
+<section>
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="section-tag">Traffic Splitting</span>
+      <h2>Deterministic Canary Bucketing</h2>
+      <p>How does the system decide which customers get the new model? It uses a mathematical hash
+         to ensure the same customer always gets the same model version — no randomness, fully reproducible.</p>
+    </div>
+
+    <div class="dashboard-panel reveal">
+      <div class="panel-header">
+        <span class="panel-title">🎯 SHA-256 Bucketing Logic</span>
+      </div>
+      <div class="panel-body">
+        <div class="code-block"># For every request:
+bucket = SHA-256( tenant_id + ":" + request_id ) mod 100
+
+# If bucket < canary_percent → use new model
+# Otherwise → use current model
+
+# Example with 25% canary:
+#   bucket = 17 → New model (17 < 25) ✓
+#   bucket = 73 → Current model (73 ≥ 25) ✗</div>
+        <p style="margin-top:1rem; font-size: 0.9rem;">
+          <strong>Why this matters:</strong> Unlike random splitting, SHA-256 hashing means the same tenant+request
+          always lands in the same bucket. This makes results reproducible and debugging easier.
+          No external feature flag systems needed.
+        </p>
+      </div>
+    </div>
+
+    <!-- Visual bucket representation -->
+    <div class="dashboard-panel reveal" style="margin-top: 1.5rem;">
+      <div class="panel-header">
+        <span class="panel-title">📊 Traffic Split Visualization (25% Canary)</span>
+      </div>
+      <div class="panel-body">
+        <div style="display:flex;height:40px;border-radius:8px;overflow:hidden;margin-bottom:1rem;">
+          <div style="width:25%;background:linear-gradient(90deg,#8b5cf6,#a78bfa);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.85rem;color:white;">
+            25% — Challenger
+          </div>
+          <div style="width:75%;background:linear-gradient(90deg,#3b82f6,#60a5fa);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.85rem;color:white;">
+            75% — Primary Model
+          </div>
+        </div>
+        <div style="display:flex;gap:2rem;justify-content:center;">
+          <span class="badge badge-purple">Challenger: New model being tested</span>
+          <span class="badge badge-info">Primary: Current production model</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== QUALITY GATES ===== -->
+<section style="background: var(--bg-surface);">
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="section-tag">Quality Control</span>
+      <h2>Promotion Quality Gates</h2>
+      <p>Before a model can move to the next stage, it must pass ALL of these gates.
+         If any gate fails, the promotion is blocked and the team is notified.</p>
+    </div>
+
+    <div class="grid-2 reveal">
+      <div class="dashboard-panel">
+        <div class="panel-header">
+          <span class="panel-title">🎯 Routing Accuracy</span>
+          <span class="badge badge-success">● PASS</span>
+        </div>
+        <div class="panel-body">
+          <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:0.5rem;">
+            <span style="font-size:2rem;font-weight:800;color:var(--success);">82.4%</span>
+            <span style="color:var(--text-muted);font-size:0.85rem;">Target: ≥ 75%</span>
+          </div>
+          <div class="progress-bar"><div class="progress-fill green" style="width: 82.4%"></div></div>
+          <p style="margin-top:0.75rem;font-size:0.85rem;">
+            <strong>What this means:</strong> When the AI classifies a customer message into one of 30 categories,
+            it gets it right 82.4% of the time. The target is at least 75%.
+          </p>
+        </div>
+      </div>
+
+      <div class="dashboard-panel">
+        <div class="panel-header">
+          <span class="panel-title">🚨 Escalation Recall</span>
+          <span class="badge badge-success">● PASS</span>
+        </div>
+        <div class="panel-body">
+          <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:0.5rem;">
+            <span style="font-size:2rem;font-weight:800;color:var(--success);">78.6%</span>
+            <span style="color:var(--text-muted);font-size:0.85rem;">Target: ≥ 70%</span>
+          </div>
+          <div class="progress-bar"><div class="progress-fill green" style="width: 78.6%"></div></div>
+          <p style="margin-top:0.75rem;font-size:0.85rem;">
+            <strong>What this means:</strong> Of all the cases that truly <em>should</em> be escalated to a human,
+            the system correctly flags 78.6% of them. Missing escalations is dangerous — that's why we track this.
+          </p>
+        </div>
+      </div>
+
+      <div class="dashboard-panel">
+        <div class="panel-header">
+          <span class="panel-title">📏 Calibration Error (ECE)</span>
+          <span class="badge badge-success">● PASS</span>
+        </div>
+        <div class="panel-body">
+          <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:0.5rem;">
+            <span style="font-size:2rem;font-weight:800;color:var(--success);">0.08</span>
+            <span style="color:var(--text-muted);font-size:0.85rem;">Target: ≤ 0.15</span>
+          </div>
+          <div class="progress-bar"><div class="progress-fill blue" style="width: 53%"></div></div>
+          <p style="margin-top:0.75rem;font-size:0.85rem;">
+            <strong>What this means:</strong> When the system says "I'm 80% confident," it should be right about 80% of the time. ECE = 0.08 means confidence scores are well-calibrated (honest).
+          </p>
+        </div>
+      </div>
+
+      <div class="dashboard-panel">
+        <div class="panel-header">
+          <span class="panel-title">⏸️ Abstain Rate</span>
+          <span class="badge badge-success">● PASS</span>
+        </div>
+        <div class="panel-body">
+          <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:0.5rem;">
+            <span style="font-size:2rem;font-weight:800;color:var(--success);">22.1%</span>
+            <span style="color:var(--text-muted);font-size:0.85rem;">Target: ≤ 35%</span>
+          </div>
+          <div class="progress-bar"><div class="progress-fill purple" style="width: 63%"></div></div>
+          <p style="margin-top:0.75rem;font-size:0.85rem;">
+            <strong>What this means:</strong> The system abstains (defers to humans) 22.1% of the time.
+            Too high would mean the AI isn't automating enough; too low would mean it's being reckless.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== DAILY OPS PIPELINE ===== -->
+<section>
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="section-tag">Daily Operations</span>
+      <h2>Automated ML Operations Pipeline</h2>
+      <p>Every day, this automated pipeline runs to keep the models healthy and improving.</p>
+    </div>
+
+    <div class="timeline reveal">
+      <div class="timeline-item">
+        <h4>📊 Step 1: Build Daily Evaluation Dataset</h4>
+        <p>Collects all decisions made yesterday, matches them with any human feedback or corrections, and builds a labeled evaluation dataset.</p>
+        <div class="code-block">make evaluate-daily</div>
+      </div>
+      <div class="timeline-item">
+        <h4>📈 Step 2: Compute Daily Metrics</h4>
+        <p>Calculates routing accuracy, escalation recall, calibration error, and abstain rate from yesterday's data. Updates Prometheus gauges.</p>
+        <div class="code-block">make evaluate-metrics</div>
+      </div>
+      <div class="timeline-item">
+        <h4>🔍 Step 3: Drift Detection</h4>
+        <p>Compares today's input patterns, confidence distributions, and outcome distributions against baselines. If something has shifted significantly, alerts fire.</p>
+        <div class="code-block">make drift-check</div>
+      </div>
+      <div class="timeline-item">
+        <h4>🚀 Step 4: Canary Promotion Check</h4>
+        <p>Evaluates if the challenger model meets all quality gates. If it does, automatically advances to the next traffic percentage. If not, the promotion is blocked.</p>
+        <div class="code-block">make promote-canary</div>
+      </div>
+      <div class="timeline-item">
+        <h4>🔧 Step 5: Recalibration (Weekly)</h4>
+        <p>Once a week, re-fits the Platt scaling calibration using the latest human feedback data. This keeps confidence scores honest as the world changes.</p>
+        <div class="code-block">make recalibrate-models</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== MODEL ARTIFACTS ===== -->
+<section style="background: var(--bg-surface);">
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="section-tag">Artifacts</span>
+      <h2>Model Artifacts</h2>
+      <p>The AI models are stored as simple JSON files containing mathematical coefficients. No cloud GPU needed.</p>
+    </div>
+
+    <div class="grid-3 reveal">
+      <div class="card">
+        <div class="card-icon blue">🧠</div>
+        <h3>Routing Model</h3>
+        <p>A linear classifier that maps text features to 30 intent categories. Stored as JSON coefficients.</p>
+        <div class="code-block">routing_linear_v1.json
+routing_temperature_v1.json</div>
+      </div>
+      <div class="card">
+        <div class="card-icon orange">⚠️</div>
+        <h3>Escalation Model</h3>
+        <p>A binary predictor that estimates the probability a case will need human intervention.</p>
+        <div class="code-block">escalation_linear_v1.json
+escalation_platt_v1.json</div>
+      </div>
+      <div class="card">
+        <div class="card-icon green">📐</div>
+        <h3>Calibration Artifacts</h3>
+        <p>Platt scaling parameters that transform raw model scores into properly calibrated probabilities.</p>
+        <div class="code-block">routing_temperature_latest.json
+escalation_platt_latest.json</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== EMBEDDING & RETRIEVAL ===== -->
+<section>
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="section-tag">AI Search</span>
+      <h2>Hybrid Retrieval System</h2>
+      <p>When the system needs to find relevant knowledge, it uses TWO different search methods and combines them
+         for the best results. Think of it as using both a dictionary AND Google to find information.</p>
+    </div>
+
+    <div class="grid-2 reveal">
+      <div class="card">
+        <div class="card-icon blue">🔤</div>
+        <h3>Full-Text Search (FTS)</h3>
+        <p><strong>How it works:</strong> Traditional keyword matching powered by PostgreSQL. Searches for exact words and stemmed variations.</p>
+        <p><strong>Good at:</strong> Finding documents that contain the exact words the customer used.</p>
+        <p><strong>Limitation:</strong> Can't understand synonyms or paraphrases.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon purple">🧠</div>
+        <h3>Dense Vector Search</h3>
+        <p><strong>How it works:</strong> Converts text into 384-dimensional mathematical vectors using AI (Sentence-Transformers), then finds similar vectors.</p>
+        <p><strong>Good at:</strong> Understanding meaning — "charged twice" finds documents about "duplicate billing."</p>
+        <p><strong>Limitation:</strong> Sometimes too creative, might miss exact matches.</p>
+      </div>
+    </div>
+
+    <div class="dashboard-panel reveal" style="margin-top: 2rem;">
+      <div class="panel-header">
+        <span class="panel-title">🔀 Combined Retrieval Pipeline</span>
+      </div>
+      <div class="panel-body">
+        <div class="pipeline" style="margin:0;padding:1rem 0;">
+          <div class="pipeline-step">
+            <span class="step-icon">📝</span>
+            <span class="step-label">Customer Query</span>
+          </div>
+          <span class="pipeline-arrow">→</span>
+          <div class="pipeline-step">
+            <span class="step-icon">🔤</span>
+            <span class="step-label">FTS Results</span>
+          </div>
+          <span class="pipeline-arrow" style="font-size:0.9rem;">&amp;</span>
+          <div class="pipeline-step">
+            <span class="step-icon">🧠</span>
+            <span class="step-label">Vector Results</span>
+          </div>
+          <span class="pipeline-arrow">→</span>
+          <div class="pipeline-step">
+            <span class="step-icon">🔀</span>
+            <span class="step-label">RRF Fusion</span>
+          </div>
+          <span class="pipeline-arrow">→</span>
+          <div class="pipeline-step">
+            <span class="step-icon">🏆</span>
+            <span class="step-label">Re-Rank</span>
+          </div>
+          <span class="pipeline-arrow">→</span>
+          <div class="pipeline-step">
+            <span class="step-icon">📋</span>
+            <span class="step-label">Top-5 Results</span>
+          </div>
+        </div>
+        <p style="text-align:center;font-size:0.85rem;color:var(--text-dim);margin-top:0.5rem;">
+          Reciprocal Rank Fusion (RRF) merges both result lists, then cross-encoder reranking selects the best evidence
+        </p>
+      </div>
+    </div>
+
+    <!-- Embedding Backends -->
+    <div class="grid-3 reveal" style="margin-top: 2rem;">
+      <div class="card">
+        <div class="card-icon green">⚡</div>
+        <h3>Local (Dev)</h3>
+        <p>Hash-based 64-dim vectors. Fast but low quality. For development and CI testing.</p>
+        <div class="code-block">EMBEDDING_BACKEND=local
+Dimension: 64</div>
+      </div>
+      <div class="card" style="border-color: var(--success);">
+        <div class="card-icon blue">🧠</div>
+        <h3>Sentence-Transformer</h3>
+        <p>all-MiniLM-L6-v2 model. 384-dim vectors. Production default — great accuracy, runs locally.</p>
+        <div class="code-block">EMBEDDING_BACKEND=sentence-transformer
+Dimension: 384</div>
+      </div>
+      <div class="card">
+        <div class="card-icon purple">☁️</div>
+        <h3>Cloud API</h3>
+        <p>OpenAI embeddings. 1536-dim vectors. Highest quality for enterprise deployments.</p>
+        <div class="code-block">EMBEDDING_BACKEND=api
+Dimension: 1536</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== DRIFT DETECTION ===== -->
+<section style="background: var(--bg-surface);">
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="section-tag">Safety Net</span>
+      <h2>Drift Detection</h2>
+      <p>The real world changes — customer issues evolve, new products launch, language shifts.
+         Drift detection catches when the AI's performance starts degrading because the world has changed.</p>
+    </div>
+
+    <div class="grid-3 reveal">
+      <div class="card">
+        <div class="card-icon cyan">📊</div>
+        <h3>Input Drift</h3>
+        <p>Monitors the distribution of incoming messages. If customers start asking about unfamiliar topics, this alerts the team that the model may need retraining.</p>
+        <p><span class="badge badge-warning">Alert: DecisionApiInputDriftDetected</span></p>
+      </div>
+      <div class="card">
+        <div class="card-icon orange">📏</div>
+        <h3>Confidence Drift</h3>
+        <p>Tracks if the model's confidence distribution changes significantly. A sudden drop in confidence across the board often signals a real problem.</p>
+        <p><span class="badge badge-warning">Alert: DecisionApiConfidenceDriftDetected</span></p>
+      </div>
+      <div class="card">
+        <div class="card-icon red">📈</div>
+        <h3>Outcome Drift</h3>
+        <p>Watches for changes in the ratio of recommend/abstain/escalate decisions. If escalations suddenly spike, something is wrong.</p>
+        <p><span class="badge badge-warning">Alert: DecisionApiOutcomeDriftDetected</span></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== BUSINESS SCORECARD ===== -->
+<section>
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="section-tag">Business Impact</span>
+      <h2>Business KPI Scorecard</h2>
+      <p>The system doesn't just track technical metrics — it measures real business outcomes to prove ROI.</p>
+    </div>
+
+    <div class="dashboard-panel reveal">
+      <div class="panel-header">
+        <span class="panel-title">📊 Business Scorecard — Latest Report</span>
+        <span class="badge badge-info">2026-02-18</span>
+      </div>
+      <div class="panel-body">
+        <div style="overflow-x:auto;">
+          <table class="alert-table" style="width:100%;">
+            <thead>
+              <tr><th>KPI</th><th>Target</th><th>Status</th><th>What It Means</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Agent Weekly Active Usage</td>
+                <td>≥ 70%</td>
+                <td><span class="badge badge-danger">Needs Data</span></td>
+                <td>Percentage of support agents actively using the AI assistant</td>
+              </tr>
+              <tr>
+                <td>Assisted Coverage</td>
+                <td>≥ 80%</td>
+                <td><span class="badge badge-success">186.6%</span></td>
+                <td>How many eligible tickets get AI assistance</td>
+              </tr>
+              <tr>
+                <td>Top-1 Route Accuracy</td>
+                <td>≥ 85%</td>
+                <td><span class="badge badge-warning">Collecting</span></td>
+                <td>First-guess classification accuracy</td>
+              </tr>
+              <tr>
+                <td>Escalation Rate Reduction</td>
+                <td>≥ 20%</td>
+                <td><span class="badge badge-warning">Collecting</span></td>
+                <td>Reduction in cases needing human escalation</td>
+              </tr>
+              <tr>
+                <td>Median Handling Time Reduction</td>
+                <td>≥ 25%</td>
+                <td><span class="badge badge-warning">Collecting</span></td>
+                <td>How much faster agents resolve cases with AI help</td>
+              </tr>
+              <tr>
+                <td>Feedback Completeness</td>
+                <td>≥ 95%</td>
+                <td><span class="badge badge-warning">Collecting</span></td>
+                <td>How often agents provide feedback on AI suggestions</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="container">
+    <div class="page-nav">
+      <a href="monitoring.html"><div><span class="nav-label">← Previous</span><span class="nav-title">Monitoring</span></div></a>
+      <a href="security.html"><div><span class="nav-label">Next →</span><span class="nav-title">Security</span></div></a>
+    </div>
+    <p style="margin-top:2rem">AI Decision Platform — Industry-Agnostic Customer Support Intelligence</p>
+  </div>
+</footer>
+
+<script>
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('visible'); });
+}, { threshold: 0.1 });
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>

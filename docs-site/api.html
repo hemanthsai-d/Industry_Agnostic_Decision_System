@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>API Reference — AI Decision Platform</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧠</text></svg>">
+  <style>
+    .method-badge { display:inline-block;padding:0.2rem 0.6rem;border-radius:4px;font-weight:700;font-size:0.75rem;font-family:monospace;letter-spacing:0.05em; }
+    .method-post { background:#22c55e22;color:#22c55e;border:1px solid #22c55e44; }
+    .method-get  { background:#6366f122;color:#6366f1;border:1px solid #6366f144; }
+    .method-patch{ background:#f59e0b22;color:#f59e0b;border:1px solid #f59e0b44; }
+    .endpoint-path { font-family:monospace;font-size:0.95rem;color:var(--text-primary);font-weight:600; }
+    .endpoint-row { display:flex;align-items:center;gap:0.75rem;padding:0.75rem 0;border-bottom:1px solid var(--border); }
+    .endpoint-row:last-child { border-bottom:none; }
+    .param-table { width:100%;border-collapse:collapse;margin-top:0.5rem; }
+    .param-table th { text-align:left;padding:0.5rem;color:var(--text-dim);font-size:0.8rem;border-bottom:1px solid var(--border); }
+    .param-table td { padding:0.5rem;font-size:0.85rem;border-bottom:1px solid #ffffff08; }
+    .param-type { color:var(--accent);font-family:monospace;font-size:0.8rem; }
+    .param-required { color:var(--danger);font-size:0.7rem;font-weight:600; }
+    .response-tab { display:inline-block;padding:0.4rem 1rem;border-radius:6px 6px 0 0;font-size:0.8rem;cursor:pointer;border:1px solid var(--border);border-bottom:none;margin-right:0.25rem; }
+    .response-tab.active-tab { background:var(--bg-card);color:var(--text-primary); }
+  </style>
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="navbar-inner">
+    <a href="index.html" class="navbar-brand"><span class="logo-icon">🧠</span> Decision Platform</a>
+    <button class="mobile-toggle" onclick="document.querySelector('.navbar-links').classList.toggle('open')">☰</button>
+    <ul class="navbar-links">
+      <li><a href="index.html">Overview</a></li>
+      <li><a href="architecture.html">Architecture</a></li>
+      <li><a href="monitoring.html">Monitoring</a></li>
+      <li><a href="ml-ops.html">ML Ops</a></li>
+      <li><a href="security.html">Security</a></li>
+      <li><a href="operations.html">Operations</a></li>
+      <li><a href="api.html" class="active">API</a></li>
+    </ul>
+  </div>
+</nav>
+
+<section style="padding-top: 120px;">
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="section-tag">Developer Guide</span>
+      <h2>API Reference</h2>
+      <p>Complete reference for every API endpoint. Each request requires a valid JWT token
+         with the appropriate permissions.</p>
+    </div>
+
+    <div class="stats-grid reveal">
+      <div class="stat-card">
+        <span class="stat-number">7</span>
+        <span class="stat-label">Endpoints</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-number">JWT</span>
+        <span class="stat-label">Authentication</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-number">JSON</span>
+        <span class="stat-label">Request Format</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-number">REST</span>
+        <span class="stat-label">API Style</span>
+      </div>
+    </div>
+
+    <div class="dashboard-panel reveal" style="margin-top: 2rem;">
+      <div class="panel-header">
+        <span class="panel-title">🗺️ Endpoint Overview</span>
+      </div>
+      <div class="panel-body">
+        <div class="endpoint-row">
+          <span class="method-badge method-post">POST</span>
+          <span class="endpoint-path">/v1/assist/decide</span>
+          <span style="color:var(--text-muted);font-size:0.85rem;">Main decision endpoint</span>
+        </div>
+        <div class="endpoint-row">
+          <span class="method-badge method-post">POST</span>
+          <span class="endpoint-path">/v1/assist/feedback</span>
+          <span style="color:var(--text-muted);font-size:0.85rem;">Submit feedback on a decision</span>
+        </div>
+        <div class="endpoint-row">
+          <span class="method-badge method-post">POST</span>
+          <span class="endpoint-path">/v1/assist/reindex</span>
+          <span style="color:var(--text-muted);font-size:0.85rem;">Re-index the knowledge base</span>
+        </div>
+        <div class="endpoint-row">
+          <span class="method-badge method-get">GET</span>
+          <span class="endpoint-path">/v1/assist/handoffs</span>
+          <span style="color:var(--text-muted);font-size:0.85rem;">List escalated handoffs</span>
+        </div>
+        <div class="endpoint-row">
+          <span class="method-badge method-patch">PATCH</span>
+          <span class="endpoint-path">/v1/assist/handoffs/{id}</span>
+          <span style="color:var(--text-muted);font-size:0.85rem;">Update handoff status</span>
+        </div>
+        <div class="endpoint-row">
+          <span class="method-badge method-post">POST</span>
+          <span class="endpoint-path">/v1/admin/reload-chunks</span>
+          <span style="color:var(--text-muted);font-size:0.85rem;">Hot-reload knowledge base</span>
+        </div>
+        <div class="endpoint-row">
+          <span class="method-badge method-get">GET</span>
+          <span class="endpoint-path">/health</span>
+          <span style="color:var(--text-muted);font-size:0.85rem;">Health check &amp; readiness probe</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== MAIN DECISION ENDPOINT ===== -->
+<section style="background: var(--bg-surface);">
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="section-tag">Core Endpoint</span>
+      <h2><span class="method-badge method-post" style="font-size:1rem;vertical-align:middle;">POST</span> /v1/assist/decide</h2>
+      <p>The main endpoint. Submit a customer message and get back an AI-powered decision
+         with confidence scores, intent classification, and recommended action.</p>
+    </div>
+
+    <div class="grid-2 reveal">
+      <div class="dashboard-panel">
+        <div class="panel-header">
+          <span class="panel-title">📤 Request Body</span>
+          <span class="badge badge-info">assist:decide</span>
+        </div>
+        <div class="panel-body">
+          <table class="param-table">
+            <thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead>
+            <tbody>
+              <tr>
+                <td><code>issue_text</code> <span class="param-required">REQUIRED</span></td>
+                <td><span class="param-type">string</span></td>
+                <td>The customer's message</td>
+              </tr>
+              <tr>
+                <td><code>customer_tier</code></td>
+                <td><span class="param-type">string</span></td>
+                <td>"basic", "premium", "enterprise"</td>
+              </tr>
+              <tr>
+                <td><code>channel</code></td>
+                <td><span class="param-type">string</span></td>
+                <td>"chat", "email", "phone", "web"</td>
+              </tr>
+              <tr>
+                <td><code>session_id</code></td>
+                <td><span class="param-type">string</span></td>
+                <td>Optional session identifier for context tracking</td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="code-block" style="margin-top:1rem;">POST /v1/assist/decide
+Content-Type: application/json
+Authorization: Bearer eyJhbG...
+
+{
+  "issue_text": "I was charged twice for my
+    subscription last month",
+  "customer_tier": "premium",
+  "channel": "chat"
+}</div>
+        </div>
+      </div>
+
+      <div class="dashboard-panel">
+        <div class="panel-header">
+          <span class="panel-title">📥 Response (200 OK)</span>
+        </div>
+        <div class="panel-body">
+          <div class="code-block">{
+  "request_id": "abc123-def456",
+  "decision": "auto_respond",
+  "intent": "billing_dispute",
+  "confidence": 0.87,
+  "confidence_signals": {
+    "route_confidence": 0.92,
+    "evidence_quality": 0.85,
+    "escalation_risk": 0.12,
+    "ood_score": 0.03,
+    "contradiction_flag": 0.01
+  },
+  "response": "I understand you were
+    charged twice. Let me look into
+    your billing for last month...",
+  "evidence_chunks": [
+    {
+      "text": "For duplicate charges...",
+      "score": 0.91
+    }
+  ],
+  "policy_override": null,
+  "processing_time_ms": 142
+}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid-3 reveal" style="margin-top:1.5rem;">
+      <div class="card">
+        <div class="card-icon green">✅</div>
+        <h3>"auto_respond"</h3>
+        <p>AI is confident — sends the response directly to the customer without human intervention.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon orange">🤷</div>
+        <h3>"abstain"</h3>
+        <p>AI is unsure — routes to a human agent with all the gathered evidence attached.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon red">🚨</div>
+        <h3>"escalate"</h3>
+        <p>High-risk content detected — immediately flags for senior agent review.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FEEDBACK ENDPOINT ===== -->
+<section>
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="section-tag">Feedback Loop</span>
+      <h2><span class="method-badge method-post" style="font-size:1rem;vertical-align:middle;">POST</span> /v1/assist/feedback</h2>
+      <p>Human agents submit feedback on AI decisions. This data is used to measure accuracy and improve the models over time.</p>
+    </div>
+
+    <div class="grid-2 reveal">
+      <div class="dashboard-panel">
+        <div class="panel-header">
+          <span class="panel-title">📤 Request</span>
+          <span class="badge badge-info">assist:feedback</span>
+        </div>
+        <div class="panel-body">
+          <div class="code-block">POST /v1/assist/feedback
+Authorization: Bearer eyJhbG...
+
+{
+  "request_id": "abc123-def456",
+  "verdict": "correct",
+  "corrected_intent": null,
+  "agent_notes": "AI decision was accurate"
+}</div>
+          <table class="param-table" style="margin-top:1rem;">
+            <thead><tr><th>Field</th><th>Values</th></tr></thead>
+            <tbody>
+              <tr><td><code>verdict</code></td><td>"correct", "incorrect", "partial"</td></tr>
+              <tr><td><code>corrected_intent</code></td><td>The correct intent if AI was wrong</td></tr>
+              <tr><td><code>agent_notes</code></td><td>Optional free-text notes</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="dashboard-panel">
+        <div class="panel-header">
+          <span class="panel-title">📥 Response (200 OK)</span>
+        </div>
+        <div class="panel-body">
+          <div class="code-block">{
+  "status": "recorded",
+  "feedback_id": "fb-789",
+  "routing_accuracy_7d": 0.847
+}</div>
+          <p style="margin-top:1rem;font-size:0.85rem;color:var(--text-muted);">
+            The response includes the rolling 7-day routing accuracy so agents can see the AI's overall performance improving over time.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== HANDOFF ENDPOINTS ===== -->
+<section style="background: var(--bg-surface);">
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="section-tag">Escalation Queue</span>
+      <h2>Handoff Endpoints</h2>
+      <p>When the AI escalates or abstains, the case enters the handoff queue. Human agents use these endpoints to manage escalated cases.</p>
+    </div>
+
+    <div class="grid-2 reveal">
+      <div class="dashboard-panel">
+        <div class="panel-header">
+          <span class="panel-title"><span class="method-badge method-get" style="font-size:0.7rem;">GET</span> /v1/assist/handoffs</span>
+          <span class="badge badge-info">assist:handoff:read</span>
+        </div>
+        <div class="panel-body">
+          <p style="font-size:0.9rem;margin-bottom:1rem;">Lists all pending handoffs (escalated cases waiting for human review).</p>
+          <div class="code-block">GET /v1/assist/handoffs?status=pending&limit=20
+
+# Response:
+{
+  "handoffs": [
+    {
+      "id": "hoff-001",
+      "request_id": "abc123-def456",
+      "reason": "policy_high_risk",
+      "intent": "billing_dispute",
+      "confidence": 0.42,
+      "customer_tier": "enterprise",
+      "created_at": "2026-02-17T10:30:00Z",
+      "status": "pending"
+    }
+  ],
+  "total": 3,
+  "page": 1
+}</div>
+        </div>
+      </div>
+
+      <div class="dashboard-panel">
+        <div class="panel-header">
+          <span class="panel-title"><span class="method-badge method-patch" style="font-size:0.7rem;">PATCH</span> /v1/assist/handoffs/{id}</span>
+          <span class="badge badge-info">assist:handoff:update</span>
+        </div>
+        <div class="panel-body">
+          <p style="font-size:0.9rem;margin-bottom:1rem;">Resolve or reassign a handoff case.</p>
+          <div class="code-block">PATCH /v1/assist/handoffs/hoff-001
+
+{
+  "status": "resolved",
+  "resolution_notes": "Issued full refund
+    for duplicate charge",
+  "resolved_by": "agent_smith"
+}
+
+# Response:
+{
+  "id": "hoff-001",
+  "status": "resolved",
+  "resolved_at": "2026-02-17T10:45:00Z",
+  "time_to_resolve_min": 15
+}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== ADMIN ENDPOINTS ===== -->
+<section>
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="section-tag">Administration</span>
+      <h2>Admin &amp; Infrastructure Endpoints</h2>
+    </div>
+
+    <div class="grid-3 reveal">
+      <div class="dashboard-panel">
+        <div class="panel-header">
+          <span class="panel-title"><span class="method-badge method-post" style="font-size:0.7rem;">POST</span> reindex</span>
+        </div>
+        <div class="panel-body">
+          <p style="font-size:0.85rem;"><code>/v1/assist/reindex</code></p>
+          <p style="font-size:0.85rem;margin-top:0.5rem;">Triggers re-indexing of the knowledge base embeddings. Use after updating KB articles.</p>
+          <p style="margin-top:0.5rem;"><span class="badge badge-info">assist:reindex</span></p>
+          <div class="code-block" style="margin-top:0.75rem;font-size:0.8rem;"># Response:
+{
+  "status": "reindex_started",
+  "chunks_queued": 156,
+  "estimated_time_sec": 45
+}</div>
+        </div>
+      </div>
+
+      <div class="dashboard-panel">
+        <div class="panel-header">
+          <span class="panel-title"><span class="method-badge method-post" style="font-size:0.7rem;">POST</span> reload-chunks</span>
+        </div>
+        <div class="panel-body">
+          <p style="font-size:0.85rem;"><code>/v1/admin/reload-chunks</code></p>
+          <p style="font-size:0.85rem;margin-top:0.5rem;">Hot-reloads knowledge base chunks from storage without restarting the service.</p>
+          <p style="margin-top:0.5rem;"><span class="badge badge-warning">admin:reload</span></p>
+          <div class="code-block" style="margin-top:0.75rem;font-size:0.8rem;"># Response:
+{
+  "status": "reloaded",
+  "chunks_loaded": 156,
+  "time_ms": 320
+}</div>
+        </div>
+      </div>
+
+      <div class="dashboard-panel">
+        <div class="panel-header">
+          <span class="panel-title"><span class="method-badge method-get" style="font-size:0.7rem;">GET</span> health</span>
+        </div>
+        <div class="panel-body">
+          <p style="font-size:0.85rem;"><code>/health</code> &amp; <code>/ready</code></p>
+          <p style="font-size:0.85rem;margin-top:0.5rem;">Kubernetes liveness and readiness probes. No auth required.</p>
+          <p style="margin-top:0.5rem;"><span class="badge badge-success">No auth</span></p>
+          <div class="code-block" style="margin-top:0.75rem;font-size:0.8rem;"># Response:
+{
+  "status": "healthy",
+  "version": "1.0.0",
+  "uptime_seconds": 86400,
+  "checks": {
+    "database": "ok",
+    "redis": "ok",
+    "model_server": "ok"
+  }
+}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== ERROR RESPONSES ===== -->
+<section style="background: var(--bg-surface);">
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="section-tag">Error Handling</span>
+      <h2>Error Responses</h2>
+      <p>All errors return JSON with a consistent structure. Use the error code to handle specific cases.</p>
+    </div>
+
+    <div class="dashboard-panel reveal">
+      <div class="panel-header">
+        <span class="panel-title">⚠️ Error Codes</span>
+      </div>
+      <div class="panel-body">
+        <div style="overflow-x:auto;">
+          <table class="alert-table" style="width:100%;">
+            <thead>
+              <tr><th>HTTP Status</th><th>Error Code</th><th>Meaning</th><th>What To Do</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="badge badge-warning">400</span></td>
+                <td><code>VALIDATION_ERROR</code></td>
+                <td>Invalid request body</td>
+                <td>Check required fields and types</td>
+              </tr>
+              <tr>
+                <td><span class="badge badge-warning">400</span></td>
+                <td><code>INJECTION_DETECTED</code></td>
+                <td>Prompt injection blocked</td>
+                <td>Do not retry — input is flagged</td>
+              </tr>
+              <tr>
+                <td><span class="badge badge-danger">401</span></td>
+                <td><code>AUTH_REQUIRED</code></td>
+                <td>Missing or expired JWT</td>
+                <td>Generate a new token</td>
+              </tr>
+              <tr>
+                <td><span class="badge badge-danger">403</span></td>
+                <td><code>FORBIDDEN</code></td>
+                <td>Token lacks required permission</td>
+                <td>Request appropriate role</td>
+              </tr>
+              <tr>
+                <td><span class="badge badge-warning">429</span></td>
+                <td><code>RATE_LIMITED</code></td>
+                <td>Too many requests</td>
+                <td>Wait for Retry-After header value</td>
+              </tr>
+              <tr>
+                <td><span class="badge badge-danger">500</span></td>
+                <td><code>INTERNAL_ERROR</code></td>
+                <td>Unexpected server error</td>
+                <td>Retry with exponential backoff</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="code-block" style="margin-top:1.5rem;"># Error response format:
+{
+  "error": {
+    "code": "RATE_LIMITED",
+    "message": "Rate limit exceeded for tenant acme-corp",
+    "request_id": "req-abc123",
+    "retry_after_seconds": 30
+  }
+}</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== AUTHENTICATION ===== -->
+<section>
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="section-tag">Getting Started</span>
+      <h2>Authentication</h2>
+      <p>All API calls (except health checks) require a JWT Bearer token.</p>
+    </div>
+
+    <div class="grid-2 reveal">
+      <div class="dashboard-panel">
+        <div class="panel-header">
+          <span class="panel-title">🔑 Generate a Token</span>
+        </div>
+        <div class="panel-body">
+          <div class="code-block"># Using the token generator script:
+python scripts/generate_token.py \
+  --tenant acme-corp \
+  --role agent \
+  --permissions assist:decide,assist:feedback
+
+# Output:
+eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...</div>
+        </div>
+      </div>
+
+      <div class="dashboard-panel">
+        <div class="panel-header">
+          <span class="panel-title">📡 Use the Token</span>
+        </div>
+        <div class="panel-body">
+          <div class="code-block"># Include in every request:
+curl -X POST http://localhost:8000/v1/assist/decide \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer eyJhbG..." \
+  -d '{
+    "issue_text": "My order hasn't arrived"
+  }'</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="container">
+    <div class="page-nav">
+      <a href="operations.html"><div><span class="nav-label">← Previous</span><span class="nav-title">Operations</span></div></a>
+      <a href="index.html"><div><span class="nav-label">Back to →</span><span class="nav-title">Overview</span></div></a>
+    </div>
+    <p style="margin-top:2rem">AI Decision Platform — Industry-Agnostic Customer Support Intelligence</p>
+  </div>
+</footer>
+
+<script>
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('visible'); });
+}, { threshold: 0.1 });
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>

@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Decision Platform — Overview</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧠</text></svg>">
+</head>
+<body>
+
+<!-- ===== NAVIGATION ===== -->
+<nav class="navbar">
+  <div class="navbar-inner">
+    <a href="index.html" class="navbar-brand">
+      <span class="logo-icon">🧠</span>
+      Decision Platform
+    </a>
+    <button class="mobile-toggle" onclick="document.querySelector('.navbar-links').classList.toggle('open')">☰</button>
+    <ul class="navbar-links">
+      <li><a href="index.html" class="active">Overview</a></li>
+      <li><a href="architecture.html">Architecture</a></li>
+      <li><a href="monitoring.html">Monitoring</a></li>
+      <li><a href="ml-ops.html">ML Ops</a></li>
+      <li><a href="security.html">Security</a></li>
+      <li><a href="operations.html">Operations</a></li>
+      <li><a href="api.html">API</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- ===== HERO ===== -->
+<section class="hero">
+  <div class="container">
+    <div class="hero-content">
+      <div class="hero-badge">🚀 Production-Grade AI System</div>
+      <h1>Intelligent Customer Support Decision Engine</h1>
+      <p class="hero-subtitle">
+        An AI-powered system that reads customer messages, understands the problem, finds the right solution,
+        and knows when to ask a human for help — all in under 500 milliseconds.
+      </p>
+      <div class="hero-actions">
+        <a href="architecture.html" class="btn btn-primary">Explore Architecture →</a>
+        <a href="monitoring.html" class="btn btn-outline">View Dashboards</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== WHAT IT DOES (Plain English) ===== -->
+<section id="what-it-does">
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="section-tag">The Big Picture</span>
+      <h2>What Does This System Do?</h2>
+      <p>Think of it as a brilliant assistant that reads every customer message, instantly understands the problem,
+         finds the best answer from your knowledge base, and — most importantly — knows when it's not sure
+         and should hand off to a human expert.</p>
+    </div>
+
+    <div class="grid-3 reveal">
+      <div class="card">
+        <div class="card-icon green">📩</div>
+        <h3>Reads &amp; Understands</h3>
+        <p>A customer sends a message — by email, chat, or social media. The system instantly reads it,
+           removes any personal information (like credit card numbers), and figures out what the customer needs.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon blue">🔎</div>
+        <h3>Finds the Right Answer</h3>
+        <p>It searches through your company's knowledge base — FAQs, policies, runbooks — using advanced
+           AI retrieval to find the most relevant information to solve the problem.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon purple">🎯</div>
+        <h3>Makes a Smart Decision</h3>
+        <p>Based on 5 different signals of confidence, it decides: <strong>"I can handle this"</strong>,
+           <strong>"I'm not sure enough"</strong>, or <strong>"This needs a human expert"</strong>.
+           No guessing — every decision is backed by data.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== KEY NUMBERS ===== -->
+<section style="background: var(--bg-surface);">
+  <div class="container">
+    <div class="stats-grid reveal">
+      <div class="stat-card">
+        <span class="stat-number">30</span>
+        <span class="stat-label">Intent Categories</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-number">&lt;500ms</span>
+        <span class="stat-label">Response Time (p95)</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-number">5</span>
+        <span class="stat-label">Confidence Signals</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-number">25+</span>
+        <span class="stat-label">Monitored Metrics</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-number">14</span>
+        <span class="stat-label">Alert Rules</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-number">13</span>
+        <span class="stat-label">PII Patterns Detected</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== HOW IT WORKS (Pipeline) ===== -->
+<section id="pipeline">
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="section-tag">Step by Step</span>
+      <h2>How a Customer Message Gets Processed</h2>
+      <p>Every message flows through 8 intelligent stages — from safety checks to the final decision.
+         The entire journey takes less than half a second.</p>
+    </div>
+
+    <div class="pipeline reveal">
+      <div class="pipeline-step">
+        <span class="step-num">1</span>
+        <span class="step-icon">📩</span>
+        <span class="step-label">Customer Message</span>
+        <span class="step-time">Incoming</span>
+      </div>
+      <span class="pipeline-arrow">→</span>
+      <div class="pipeline-step">
+        <span class="step-num">2</span>
+        <span class="step-icon">🔒</span>
+        <span class="step-label">PII Redaction</span>
+        <span class="step-time">~2ms</span>
+      </div>
+      <span class="pipeline-arrow">→</span>
+      <div class="pipeline-step">
+        <span class="step-num">3</span>
+        <span class="step-icon">🛡️</span>
+        <span class="step-label">Safety Scan</span>
+        <span class="step-time">~3ms</span>
+      </div>
+      <span class="pipeline-arrow">→</span>
+      <div class="pipeline-step">
+        <span class="step-num">4</span>
+        <span class="step-icon">🔎</span>
+        <span class="step-label">Find Evidence</span>
+        <span class="step-time">~80ms</span>
+      </div>
+      <span class="pipeline-arrow">→</span>
+      <div class="pipeline-step">
+        <span class="step-num">5</span>
+        <span class="step-icon">🧠</span>
+        <span class="step-label">AI Routing</span>
+        <span class="step-time">~15ms</span>
+      </div>
+      <span class="pipeline-arrow">→</span>
+      <div class="pipeline-step">
+        <span class="step-num">6</span>
+        <span class="step-icon">📏</span>
+        <span class="step-label">Confidence Score</span>
+        <span class="step-time">~5ms</span>
+      </div>
+      <span class="pipeline-arrow">→</span>
+      <div class="pipeline-step">
+        <span class="step-num">7</span>
+        <span class="step-icon">⚖️</span>
+        <span class="step-label">Policy Gate</span>
+        <span class="step-time">~2ms</span>
+      </div>
+      <span class="pipeline-arrow">→</span>
+      <div class="pipeline-step">
+        <span class="step-num">8</span>
+        <span class="step-icon">✅</span>
+        <span class="step-label">Decision</span>
+        <span class="step-time">Output</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== THREE POSSIBLE OUTCOMES ===== -->
+<section style="background: var(--bg-surface);">
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="section-tag">Smart Outcomes</span>
+      <h2>Three Possible Decisions</h2>
+      <p>Unlike simple AI systems that always try to answer, this platform makes nuanced decisions based on
+         how confident it is. This prevents wrong answers from reaching customers.</p>
+    </div>
+
+    <div class="outcome-flow reveal">
+      <div class="outcome-box outcome-recommend">
+        ✅ RECOMMEND
+        <span class="outcome-desc">High confidence — the AI drafts a response for the agent to review and send</span>
+      </div>
+      <div class="outcome-box outcome-abstain">
+        ⏸️ ABSTAIN
+        <span class="outcome-desc">Moderate uncertainty — the AI provides evidence but defers the final answer to a human</span>
+      </div>
+      <div class="outcome-box outcome-escalate">
+        🚨 ESCALATE
+        <span class="outcome-desc">High risk or complexity — immediately routes to a specialist with full context</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== CONFIDENCE SCORING ===== -->
+<section id="confidence">
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="section-tag">Why It's Different</span>
+      <h2>5-Signal Confidence Scoring</h2>
+      <p>Instead of a single "how sure am I?" number, the system evaluates 5 different factors to decide
+         whether it should respond, abstain, or escalate. This makes decisions much more reliable.</p>
+    </div>
+
+    <div class="confidence-breakdown reveal">
+      <div class="confidence-signal">
+        <span class="signal-weight" style="color: var(--primary-light)">45%</span>
+        <div class="signal-info">
+          <h4>🎯 Route Confidence</h4>
+          <p>How sure the AI is about what category this problem falls into (e.g., billing, shipping, technical)</p>
+        </div>
+      </div>
+      <div class="confidence-signal">
+        <span class="signal-weight" style="color: var(--accent)">25%</span>
+        <div class="signal-info">
+          <h4>📚 Evidence Quality</h4>
+          <p>How relevant and trustworthy the knowledge base articles are that support the answer</p>
+        </div>
+      </div>
+      <div class="confidence-signal">
+        <span class="signal-weight" style="color: var(--success)">20%</span>
+        <div class="signal-info">
+          <h4>⚠️ Escalation Risk</h4>
+          <p>A separate model that predicts whether this case will end up needing human help anyway</p>
+        </div>
+      </div>
+      <div class="confidence-signal">
+        <span class="signal-weight" style="color: var(--warning)">−7%</span>
+        <div class="signal-info">
+          <h4>🔍 Out-of-Distribution</h4>
+          <p>Detects unusual messages the AI hasn't seen before — penalizes confidence on unfamiliar topics</p>
+        </div>
+      </div>
+      <div class="confidence-signal">
+        <span class="signal-weight" style="color: var(--danger)">−3%</span>
+        <div class="signal-info">
+          <h4>🔀 Contradiction Score</h4>
+          <p>Catches when different pieces of evidence disagree with each other — a sign the AI shouldn't be confident</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== TECH STACK ===== -->
+<section style="background: var(--bg-surface);">
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="section-tag">Built With</span>
+      <h2>Technology Stack</h2>
+      <p>Enterprise-grade technologies chosen for reliability, speed, and scalability.</p>
+    </div>
+
+    <div class="tech-grid reveal">
+      <div class="tech-item">🐍 Python 3.13</div>
+      <div class="tech-item">⚡ FastAPI</div>
+      <div class="tech-item">🐘 PostgreSQL 16</div>
+      <div class="tech-item">📐 pgvector</div>
+      <div class="tech-item">🔴 Redis 7</div>
+      <div class="tech-item">🤖 Sentence-Transformers</div>
+      <div class="tech-item">📊 Prometheus</div>
+      <div class="tech-item">📈 Grafana</div>
+      <div class="tech-item">🔔 Alertmanager</div>
+      <div class="tech-item">🔭 Jaeger (Tracing)</div>
+      <div class="tech-item">⚖️ Open Policy Agent</div>
+      <div class="tech-item">🔐 JWT Auth</div>
+      <div class="tech-item">🐳 Docker</div>
+      <div class="tech-item">☸️ Kubernetes</div>
+      <div class="tech-item">🏗️ Terraform</div>
+      <div class="tech-item">📦 Helm Charts</div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 10 INNOVATIONS ===== -->
+<section id="innovations">
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="section-tag">What Makes It Special</span>
+      <h2>10 Core Innovations</h2>
+      <p>This isn't just another chatbot. Every component was designed to solve real production challenges.</p>
+    </div>
+
+    <div class="grid-2 reveal">
+      <div class="card">
+        <div class="card-icon purple">🔬</div>
+        <h3>Multi-Signal Confidence</h3>
+        <p>5 different signals combined to measure how confident the system is — not just one number, but a comprehensive assessment.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon blue">🔄</div>
+        <h3>Complete ML Lifecycle</h3>
+        <p>From training to deployment: shadow evaluation, canary testing, quality gates, and automatic promotion — all built in.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon red">🛡️</div>
+        <h3>3-Layer Prompt Injection Defense</h3>
+        <p>18 regex rules + role marker analysis + entropy scoring protect against manipulation attempts.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon cyan">📚</div>
+        <h3>Hybrid Retrieval + Staleness Decay</h3>
+        <p>Combines keyword and semantic search, then automatically penalizes outdated information.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon green">🎯</div>
+        <h3>Deterministic Canary Bucketing</h3>
+        <p>Uses SHA-256 hashing for reproducible traffic splitting — no external feature flag systems needed.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon orange">✍️</div>
+        <h3>Anti-Copy Enforcement</h3>
+        <p>Every AI response is checked for plagiarism against source material using token overlap analysis.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon indigo">🔁</div>
+        <h3>Closed Learning Loop</h3>
+        <p>When humans handle escalated cases, their decisions flow back to improve the AI model.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon pink">🤖</div>
+        <h3>MCP Server Integration</h3>
+        <p>AI assistants like Claude and Copilot can call the decision engine directly as a tool.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon blue">📊</div>
+        <h3>25+ Metrics · 14 Alerts</h3>
+        <p>Comprehensive monitoring from day one — every aspect of system health is tracked and alerted.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon green">🚀</div>
+        <h3>Zero-Dependency Dev Mode</h3>
+        <p>Start developing immediately with a single command — no Docker, no database setup required.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== EXPLORE PAGES ===== -->
+<section style="background: var(--bg-surface);">
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="section-tag">Deep Dive</span>
+      <h2>Explore Each Area</h2>
+      <p>Click on any area below to see detailed dashboards, configurations, and explanations.</p>
+    </div>
+
+    <div class="grid-3 reveal">
+      <a href="architecture.html" class="card" style="text-decoration:none;">
+        <div class="card-icon blue">🏗️</div>
+        <h3>System Architecture</h3>
+        <p>How all the pieces fit together — services, databases, message flow, and infrastructure.</p>
+      </a>
+      <a href="monitoring.html" class="card" style="text-decoration:none;">
+        <div class="card-icon green">📊</div>
+        <h3>Monitoring &amp; Dashboards</h3>
+        <p>Prometheus metrics, Grafana graphs, SLO tracking, and real-time health visualization.</p>
+      </a>
+      <a href="ml-ops.html" class="card" style="text-decoration:none;">
+        <div class="card-icon purple">🧠</div>
+        <h3>ML Operations</h3>
+        <p>Model training, canary rollouts, quality gates, drift detection, and recalibration.</p>
+      </a>
+      <a href="security.html" class="card" style="text-decoration:none;">
+        <div class="card-icon red">🔒</div>
+        <h3>Security &amp; Compliance</h3>
+        <p>PII protection, prompt injection defense, RBAC auth, audit trails, and compliance checks.</p>
+      </a>
+      <a href="operations.html" class="card" style="text-decoration:none;">
+        <div class="card-icon orange">⚙️</div>
+        <h3>Operations &amp; Alerts</h3>
+        <p>AlertManager routing, on-call schedules, incident response, rollback procedures.</p>
+      </a>
+      <a href="api.html" class="card" style="text-decoration:none;">
+        <div class="card-icon cyan">🔌</div>
+        <h3>API Reference</h3>
+        <p>Complete endpoint documentation with request/response examples and authentication.</p>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<footer class="footer">
+  <div class="container">
+    <ul class="footer-links">
+      <li><a href="index.html">Overview</a></li>
+      <li><a href="architecture.html">Architecture</a></li>
+      <li><a href="monitoring.html">Monitoring</a></li>
+      <li><a href="ml-ops.html">ML Ops</a></li>
+      <li><a href="security.html">Security</a></li>
+      <li><a href="operations.html">Operations</a></li>
+      <li><a href="api.html">API</a></li>
+    </ul>
+    <p>AI Decision Platform — Industry-Agnostic Customer Support Intelligence</p>
+  </div>
+</footer>
+
+<script>
+// Reveal on scroll
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+    }
+  });
+}, { threshold: 0.1 });
+
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+
+</body>
+</html>

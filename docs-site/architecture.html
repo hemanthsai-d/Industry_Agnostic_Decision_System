@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Architecture — AI Decision Platform</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧠</text></svg>">
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="navbar-inner">
+    <a href="index.html" class="navbar-brand"><span class="logo-icon">🧠</span> Decision Platform</a>
+    <button class="mobile-toggle" onclick="document.querySelector('.navbar-links').classList.toggle('open')">☰</button>
+    <ul class="navbar-links">
+      <li><a href="index.html">Overview</a></li>
+      <li><a href="architecture.html" class="active">Architecture</a></li>
+      <li><a href="monitoring.html">Monitoring</a></li>
+      <li><a href="ml-ops.html">ML Ops</a></li>
+      <li><a href="security.html">Security</a></li>
+      <li><a href="operations.html">Operations</a></li>
+      <li><a href="api.html">API</a></li>
+    </ul>
+  </div>
+</nav>
+
+<section style="padding-top: 120px;">
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="section-tag">System Design</span>
+      <h2>System Architecture</h2>
+      <p>A visual walkthrough of how all the components connect — from the customer's message to the final decision.</p>
+    </div>
+
+    <!-- Full Architecture Diagram -->
+    <div class="arch-diagram reveal">
+      <div class="arch-layer-label">🌐 External Layer — Clients &amp; Integrations</div>
+      <div class="arch-layer">
+        <div class="arch-node">📱 Mobile App</div>
+        <div class="arch-node">💻 Web Dashboard</div>
+        <div class="arch-node">💬 Chat Widget</div>
+        <div class="arch-node">📧 Email Gateway</div>
+        <div class="arch-node">🤖 MCP Clients (Claude, Copilot)</div>
+      </div>
+      <div class="arch-connector">⬇️ HTTPS / MCP Protocol ⬇️</div>
+
+      <div class="arch-layer-label">🔀 API Gateway &amp; Security Layer</div>
+      <div class="arch-layer">
+        <div class="arch-node">🔐 JWT Authentication</div>
+        <div class="arch-node">🚦 Rate Limiter (Redis)</div>
+        <div class="arch-node">📊 Metrics Middleware</div>
+        <div class="arch-node">🔭 Tracing (OpenTelemetry)</div>
+      </div>
+      <div class="arch-connector">⬇️</div>
+
+      <div class="arch-layer-label">⚙️ Core Decision Engine</div>
+      <div class="arch-layer">
+        <div class="arch-node">🔒 PII Redactor</div>
+        <div class="arch-node">🛡️ Injection Scanner</div>
+        <div class="arch-node">🔎 Hybrid Retrieval</div>
+        <div class="arch-node">🧠 Intent Router</div>
+        <div class="arch-node">📏 Confidence Scorer</div>
+      </div>
+      <div class="arch-connector">⬇️</div>
+
+      <div class="arch-layer-label">⚖️ Policy &amp; Generation Layer</div>
+      <div class="arch-layer">
+        <div class="arch-node">⚖️ OPA Policy Engine</div>
+        <div class="arch-node">✍️ Response Generator</div>
+        <div class="arch-node">📋 Anti-Copy Validator</div>
+        <div class="arch-node">📤 Handoff Manager</div>
+      </div>
+      <div class="arch-connector">⬇️</div>
+
+      <div class="arch-layer-label">💾 Data &amp; Storage Layer</div>
+      <div class="arch-layer">
+        <div class="arch-node">🐘 PostgreSQL 16 + pgvector</div>
+        <div class="arch-node">🔴 Redis 7 (Cache)</div>
+        <div class="arch-node">📦 Model Artifacts</div>
+      </div>
+      <div class="arch-connector">⬇️</div>
+
+      <div class="arch-layer-label">👁️ Observability Layer</div>
+      <div class="arch-layer">
+        <div class="arch-node">📊 Prometheus</div>
+        <div class="arch-node">📈 Grafana</div>
+        <div class="arch-node">🔔 Alertmanager</div>
+        <div class="arch-node">🔭 Jaeger</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== DETAILED COMPONENTS ===== -->
+<section style="background: var(--bg-surface);">
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="section-tag">Components</span>
+      <h2>What Each Piece Does</h2>
+      <p>Every component has a specific job. Here's what each one does in plain language.</p>
+    </div>
+
+    <div class="grid-2 reveal">
+      <div class="card">
+        <div class="card-icon blue">⚡</div>
+        <h3>FastAPI Application Server</h3>
+        <p><strong>What it does:</strong> The main brain of the system. It receives customer messages via HTTP, processes them through all 8 pipeline stages, and returns a decision.</p>
+        <p><strong>In real life:</strong> Like the front desk of a hospital — it takes in patients (messages), runs diagnostics (pipeline), and decides the treatment path (decision).</p>
+        <div class="code-block">
+PORT: 8000
+ENDPOINTS: /v1/assist/decide, /v1/assist/feedback, /health
+THROUGHPUT: 120+ requests/min per tenant</div>
+      </div>
+
+      <div class="card">
+        <div class="card-icon purple">🧠</div>
+        <h3>Model Server</h3>
+        <p><strong>What it does:</strong> A separate service that runs the AI classification models. It receives text and returns probabilities for 30 different intent categories.</p>
+        <p><strong>In real life:</strong> Like a specialist doctor — the main system sends it a case description, and it returns a diagnosis with confidence percentages.</p>
+        <div class="code-block">
+PORT: 9000
+MODELS: Routing (30 intents) + Escalation (binary)
+BACKENDS: Artifact (JSON) → Heuristic fallback</div>
+      </div>
+
+      <div class="card">
+        <div class="card-icon green">🐘</div>
+        <h3>PostgreSQL + pgvector</h3>
+        <p><strong>What it does:</strong> Stores everything — customer interactions, knowledge base articles, AI decisions, model evaluation data. pgvector adds AI-powered search capabilities.</p>
+        <p><strong>In real life:</strong> The filing cabinet and library combined — stores all records AND can do smart searches to find related documents.</p>
+        <div class="code-block">
+VERSION: PostgreSQL 16
+EXTENSIONS: pgvector (vector similarity search)
+TABLES: 20+ (decisions, handoffs, feedback, chunks, metrics)</div>
+      </div>
+
+      <div class="card">
+        <div class="card-icon red">🔴</div>
+        <h3>Redis Cache</h3>
+        <p><strong>What it does:</strong> Provides rate limiting (prevents abuse) and caching (speeds up repeated lookups). Acts as a fast memory layer.</p>
+        <p><strong>In real life:</strong> Like a bouncer at a club — it controls how many people get in per minute, and remembers frequent visitors.</p>
+        <div class="code-block">
+VERSION: Redis 7 Alpine
+USES: Rate limiting, idempotency cache, session store
+LIMIT: 120 req/min per tenant, 60 req/min per user</div>
+      </div>
+
+      <div class="card">
+        <div class="card-icon orange">⚖️</div>
+        <h3>Open Policy Agent (OPA)</h3>
+        <p><strong>What it does:</strong> Enforces business rules. Even if the AI is confident, OPA can override based on rules — like "always escalate legal threats" or "block low-confidence responses."</p>
+        <p><strong>In real life:</strong> The compliance officer — reviews every decision against company policy before it goes out.</p>
+        <div class="code-block">
+VERSION: OPA 0.69.0
+LANGUAGE: Rego (policy-as-code)
+RULES: High-risk term detection, confidence threshold, escalation limits</div>
+      </div>
+
+      <div class="card">
+        <div class="card-icon cyan">🔭</div>
+        <h3>Observability Stack</h3>
+        <p><strong>What it does:</strong> Monitors everything in real-time. Prometheus collects numbers, Grafana shows graphs, Alertmanager pages people when something goes wrong, Jaeger traces individual requests.</p>
+        <p><strong>In real life:</strong> The hospital's vital signs monitors — always watching, always alerting if something looks off.</p>
+        <div class="code-block">
+PROMETHEUS: Collects 25+ metrics every 15 seconds
+GRAFANA: 5+ dashboard panels with real-time graphs
+ALERTMANAGER: 14 alert rules, 4 severity-based routes
+JAEGER: Distributed tracing for request debugging</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== Docker Compose Stack ===== -->
+<section>
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="section-tag">Deployment</span>
+      <h2>Docker Compose Stack</h2>
+      <p>The entire system runs in Docker containers. Use profiles to bring up exactly the services you need.</p>
+    </div>
+
+    <div class="grid-2 reveal">
+      <div class="dashboard-panel">
+        <div class="panel-header">
+          <span class="panel-title">🐳 Core Services (Always Running)</span>
+          <span class="panel-tag live">Required</span>
+        </div>
+        <div class="panel-body">
+          <div class="progress-item">
+            <div class="progress-label"><span>PostgreSQL 16 + pgvector</span><span>Port 5432</span></div>
+            <div class="progress-bar"><div class="progress-fill green" style="width: 100%"></div></div>
+          </div>
+          <div class="progress-item">
+            <div class="progress-label"><span>Redis 7 Alpine</span><span>Port 6379</span></div>
+            <div class="progress-bar"><div class="progress-fill green" style="width: 100%"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="dashboard-panel">
+        <div class="panel-header">
+          <span class="panel-title">📊 Observability Profile</span>
+          <span class="panel-tag live">Optional</span>
+        </div>
+        <div class="panel-body">
+          <div class="progress-item">
+            <div class="progress-label"><span>Prometheus v2.55.1</span><span>Port 9090</span></div>
+            <div class="progress-bar"><div class="progress-fill blue" style="width: 100%"></div></div>
+          </div>
+          <div class="progress-item">
+            <div class="progress-label"><span>Grafana 11.2.2</span><span>Port 3000</span></div>
+            <div class="progress-bar"><div class="progress-fill purple" style="width: 100%"></div></div>
+          </div>
+          <div class="progress-item">
+            <div class="progress-label"><span>Alertmanager v0.28.0</span><span>Port 9093</span></div>
+            <div class="progress-bar"><div class="progress-fill orange" style="width: 100%"></div></div>
+          </div>
+          <div class="progress-item">
+            <div class="progress-label"><span>Jaeger 1.60</span><span>Port 16686</span></div>
+            <div class="progress-bar"><div class="progress-fill cyan" style="width: 100%"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="dashboard-panel reveal" style="margin-top: 1.5rem;">
+      <div class="panel-header">
+        <span class="panel-title">🚀 Quick Start Commands</span>
+      </div>
+      <div class="panel-body">
+        <div class="code-block"># Start just the database and cache
+docker-compose up -d
+
+# Add monitoring dashboards
+docker-compose --profile observability up -d
+
+# Full stack with everything
+docker-compose --profile observability-full up -d
+
+# Simplified local development (no Docker needed!)
+make run-api</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== Kubernetes Deployment ===== -->
+<section style="background: var(--bg-surface);">
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="section-tag">Production Deployment</span>
+      <h2>Kubernetes &amp; Cloud Infrastructure</h2>
+      <p>For production environments, the system deploys on Kubernetes with Helm charts and Terraform.</p>
+    </div>
+
+    <div class="grid-3 reveal">
+      <div class="card">
+        <div class="card-icon cyan">☸️</div>
+        <h3>Kubernetes (kind)</h3>
+        <p>Local cluster with port mappings for API (30080), model server (30090), and PostgreSQL (30432). Single command to deploy.</p>
+        <div class="code-block">make k8s-local-deploy</div>
+      </div>
+      <div class="card">
+        <div class="card-icon blue">📦</div>
+        <h3>Helm Charts</h3>
+        <p>Pre-configured values for 4 environments: local (3 replicas), CI (1 replica), staging (3), and production (5+ with HPA).</p>
+        <div class="code-block">helm install decision-platform
+  ./infra/helm/decision-platform
+  -f values-production.yaml</div>
+      </div>
+      <div class="card">
+        <div class="card-icon green">🏗️</div>
+        <h3>Terraform</h3>
+        <p>Cloud infrastructure provisioning: managed PostgreSQL, Redis, Kubernetes cluster, KMS, Load Balancer with TLS 1.3.</p>
+        <div class="code-block">terraform apply
+  -var-file=production.tfvars</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== Data Flow ===== -->
+<section>
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="section-tag">Data Flow</span>
+      <h2>How Data Moves Through the System</h2>
+      <p>Follow a customer message from arrival to final decision.</p>
+    </div>
+
+    <div class="timeline reveal">
+      <div class="timeline-item">
+        <h4>📩 Step 1: Customer Message Arrives</h4>
+        <p>A customer writes: <em>"I was charged twice for my subscription last month"</em>. This arrives via the <code>/v1/assist/decide</code> endpoint with tenant context.</p>
+      </div>
+      <div class="timeline-item">
+        <h4>🔒 Step 2: PII Redaction (~2ms)</h4>
+        <p>The system scans for 13 types of personal information (credit cards, emails, SSNs, etc.) and masks them before any processing begins. Privacy first.</p>
+      </div>
+      <div class="timeline-item">
+        <h4>🛡️ Step 3: Prompt Injection Defense (~3ms)</h4>
+        <p>A 3-layer scanner checks for manipulation attempts: 18 regex patterns, role marker detection, and character entropy scoring. Malicious inputs are blocked.</p>
+      </div>
+      <div class="timeline-item">
+        <h4>🔎 Step 4: Hybrid Evidence Retrieval (~80ms)</h4>
+        <p>The system searches the knowledge base using both keyword matching (PostgreSQL FTS) and AI similarity (pgvector). Results are merged using Reciprocal Rank Fusion, then reranked and deduplicated.</p>
+      </div>
+      <div class="timeline-item">
+        <h4>🧠 Step 5: AI Intent Classification (~15ms)</h4>
+        <p>The model server analyzes the message and returns probabilities across 30 intent categories. In this case: <strong>refund_duplicate_charge: 62.8%</strong>, account_access_recovery: 18.0%, etc.</p>
+      </div>
+      <div class="timeline-item">
+        <h4>📏 Step 6: 5-Signal Confidence Scoring (~5ms)</h4>
+        <p>Five separate signals are combined: route confidence (45%), evidence quality (25%), escalation risk (20%), OOD detection (−7%), contradiction (−3%). The final score determines the decision.</p>
+      </div>
+      <div class="timeline-item">
+        <h4>⚖️ Step 7: Policy Gate Check (~2ms)</h4>
+        <p>OPA evaluates business rules: Is this a high-risk term (legal, fraud)? Is confidence above threshold? Is escalation probability acceptable? Rules can override AI.</p>
+      </div>
+      <div class="timeline-item">
+        <h4>✅ Step 8: Decision Output</h4>
+        <p>The system returns <span class="badge badge-success">RECOMMEND</span> with a draft response, evidence citations, confidence breakdown, and trace ID for debugging. Total time: ~107ms.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== Database Schema ===== -->
+<section style="background: var(--bg-surface);">
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="section-tag">Data Model</span>
+      <h2>Database Schema (10 Migrations)</h2>
+      <p>The database evolves through sequential migrations, each adding new capabilities.</p>
+    </div>
+
+    <div class="grid-2 reveal">
+      <div class="card">
+        <h4>📋 Migration 1–3: Core Tables</h4>
+        <p><strong>Core decision tables</strong> — stores every decision made (tenants, decisions, evidence used).
+           <strong>Inference audit</strong> — logs model predictions for evaluation.
+           <strong>Feedback events</strong> — captures human corrections to improve the model.</p>
+      </div>
+      <div class="card">
+        <h4>📊 Migration 4–6: ML Ops</h4>
+        <p><strong>Model evaluation</strong> — daily accuracy and recall metrics per model variant.
+           <strong>Rollout evidence</strong> — canary promotion gate pass/fail records.
+           <strong>Sample size gates</strong> — minimum data requirements before promoting models.</p>
+      </div>
+      <div class="card">
+        <h4>📈 Migration 7–8: Business KPIs</h4>
+        <p><strong>Business scorecard</strong> — adoption rate, accuracy, handling time reduction KPIs.
+           <strong>Operational controls</strong> — secret rotation, access reviews, compliance tracking.</p>
+      </div>
+      <div class="card">
+        <h4>🔐 Migration 9–10: Security</h4>
+        <p><strong>Intent taxonomy &amp; PII audit</strong> — tracks PII detections and intent classification history.
+           <strong>Tenant RLS &amp; data retention</strong> — row-level security and automatic data cleanup policies.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="container">
+    <div class="page-nav">
+      <a href="index.html">
+        <div><span class="nav-label">← Previous</span><span class="nav-title">Overview</span></div>
+      </a>
+      <a href="monitoring.html">
+        <div><span class="nav-label">Next →</span><span class="nav-title">Monitoring &amp; Dashboards</span></div>
+      </a>
+    </div>
+    <p style="margin-top:2rem">AI Decision Platform — Industry-Agnostic Customer Support Intelligence</p>
+  </div>
+</footer>
+
+<script>
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('visible'); });
+}, { threshold: 0.1 });
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>

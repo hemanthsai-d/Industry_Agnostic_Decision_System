@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Monitoring &amp; Dashboards — AI Decision Platform</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧠</text></svg>">
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="navbar-inner">
+    <a href="index.html" class="navbar-brand"><span class="logo-icon">🧠</span> Decision Platform</a>
+    <button class="mobile-toggle" onclick="document.querySelector('.navbar-links').classList.toggle('open')">☰</button>
+    <ul class="navbar-links">
+      <li><a href="index.html">Overview</a></li>
+      <li><a href="architecture.html">Architecture</a></li>
+      <li><a href="monitoring.html" class="active">Monitoring</a></li>
+      <li><a href="ml-ops.html">ML Ops</a></li>
+      <li><a href="security.html">Security</a></li>
+      <li><a href="operations.html">Operations</a></li>
+      <li><a href="api.html">API</a></li>
+    </ul>
+  </div>
+</nav>
+
+<section style="padding-top: 120px;">
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="section-tag">Observability</span>
+      <h2>Monitoring &amp; Dashboards</h2>
+      <p>Real-time visibility into system health, performance, and AI quality. Prometheus collects data, Grafana visualizes it, and Alertmanager pages the team when something needs attention.</p>
+    </div>
+
+    <!-- How Monitoring Works -->
+    <div class="grid-3 reveal" style="margin-bottom: 3rem;">
+      <div class="card">
+        <div class="card-icon blue">📊</div>
+        <h3>Prometheus</h3>
+        <p><strong>The data collector.</strong> Every 15 seconds, it pulls numbers from the API and model server — latency, error rates, decision counts, and more. Think of it as the system's heartbeat monitor.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon green">📈</div>
+        <h3>Grafana</h3>
+        <p><strong>The visual dashboard.</strong> Turns those raw numbers into beautiful, real-time graphs and charts. Engineers and managers can see at a glance if everything is healthy.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon orange">🔔</div>
+        <h3>Alertmanager</h3>
+        <p><strong>The alarm system.</strong> When metrics cross danger thresholds, it pages the right person immediately. Critical issues: page in 5 minutes. Warnings: notify the team channel.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== GRAFANA DASHBOARD MOCKUP ===== -->
+<section style="background: var(--bg-surface);">
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="section-tag">Grafana</span>
+      <h2>SLO Overview Dashboard</h2>
+      <p>This is what the main Grafana dashboard looks like — 5 panels showing the key health indicators at a glance.</p>
+    </div>
+
+    <!-- Dashboard Header Bar -->
+    <div class="dashboard-panel reveal" style="margin-bottom: 0; border-bottom: none; border-radius: var(--radius) var(--radius) 0 0;">
+      <div class="panel-header" style="background: #181b28; padding: 0.75rem 1.5rem;">
+        <div style="display:flex;align-items:center;gap:1rem;">
+          <span style="font-size:1.1rem;">📈</span>
+          <span class="panel-title" style="font-size: 1rem;">Decision Platform — SLO Overview</span>
+          <span class="badge badge-info">Auto-refresh: 30s</span>
+        </div>
+        <div style="display:flex;gap:0.5rem;">
+          <span class="badge badge-success">● Prometheus Connected</span>
+          <span class="badge badge-purple">Last 6 hours</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Row 1: Latency & Throughput -->
+    <div class="grid-2 reveal" style="margin-top: 0;">
+      <!-- Panel 1: HTTP Latency -->
+      <div class="dashboard-panel" style="border-radius: 0;">
+        <div class="panel-header">
+          <span class="panel-title">HTTP Latency (p50 / p95 / p99)</span>
+          <span class="panel-tag live">Live</span>
+        </div>
+        <div class="panel-body">
+          <div class="chart-container">
+            <svg viewBox="0 0 400 180" preserveAspectRatio="none">
+              <!-- Grid lines -->
+              <line x1="0" y1="45" x2="400" y2="45" stroke="rgba(100,116,139,0.15)" stroke-width="0.5"/>
+              <line x1="0" y1="90" x2="400" y2="90" stroke="rgba(100,116,139,0.15)" stroke-width="0.5"/>
+              <line x1="0" y1="135" x2="400" y2="135" stroke="rgba(100,116,139,0.15)" stroke-width="0.5"/>
+              <!-- Y-axis labels -->
+              <text x="5" y="42" fill="#64748b" font-size="9">2s</text>
+              <text x="5" y="87" fill="#64748b" font-size="9">1s</text>
+              <text x="5" y="132" fill="#64748b" font-size="9">500ms</text>
+              <text x="5" y="170" fill="#64748b" font-size="9">0ms</text>
+              <!-- p99 line (highest) -->
+              <polyline fill="none" stroke="#ef4444" stroke-width="1.5" opacity="0.7"
+                points="30,120 60,115 90,118 120,110 150,125 180,105 210,112 240,108 270,115 300,118 330,110 360,114 390,112"/>
+              <!-- p95 line -->
+              <polyline fill="none" stroke="#f59e0b" stroke-width="2" opacity="0.8"
+                points="30,140 60,138 90,142 120,135 150,145 180,130 210,136 240,133 270,140 300,138 330,132 360,136 390,134"/>
+              <!-- p50 line - area fill -->
+              <path d="M30,162 L60,160 L90,164 L120,158 L150,165 L180,155 L210,160 L240,157 L270,163 L300,161 L330,156 L360,159 L390,158 L390,180 L30,180 Z"
+                fill="url(#grad-green)" opacity="0.3"/>
+              <!-- p50 line (lowest, best) -->
+              <polyline fill="none" stroke="#10b981" stroke-width="2.5"
+                points="30,162 60,160 90,164 120,158 150,165 180,155 210,160 240,157 270,163 300,161 330,156 360,159 390,158"/>
+              <!-- SLO threshold line -->
+              <line x1="30" y1="90" x2="390" y2="90" stroke="#6366f1" stroke-width="1" stroke-dasharray="6,4" opacity="0.6"/>
+              <text x="320" y="86" fill="#6366f1" font-size="8" font-weight="600">SLO: 1s (p95)</text>
+              <defs>
+                <linearGradient id="grad-green" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#10b981"/>
+                  <stop offset="100%" stop-color="#10b981" stop-opacity="0"/>
+                </linearGradient>
+              </defs>
+            </svg>
+          </div>
+          <div style="display:flex;gap:1.5rem;margin-top:0.5rem;justify-content:center;">
+            <span style="font-size:0.75rem;color:#10b981;">● p50: ~56ms</span>
+            <span style="font-size:0.75rem;color:#f59e0b;">● p95: ~102ms</span>
+            <span style="font-size:0.75rem;color:#ef4444;">● p99: ~185ms</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Panel 2: Pipeline Stage Latency p95 -->
+      <div class="dashboard-panel" style="border-radius: 0;">
+        <div class="panel-header">
+          <span class="panel-title">Pipeline Stage Latency (p95)</span>
+          <span class="panel-tag live">Live</span>
+        </div>
+        <div class="panel-body">
+          <div class="bar-chart" style="height: 160px; padding-bottom: 2rem;">
+            <div class="bar" style="height: 5%; background: linear-gradient(to top, #10b981, #34d399);">
+              <span class="bar-value">2ms</span>
+              <span class="bar-label">PII</span>
+            </div>
+            <div class="bar" style="height: 7%; background: linear-gradient(to top, #06b6d4, #22d3ee);">
+              <span class="bar-value">3ms</span>
+              <span class="bar-label">Inject Scan</span>
+            </div>
+            <div class="bar" style="height: 65%; background: linear-gradient(to top, #6366f1, #818cf8);">
+              <span class="bar-value">80ms</span>
+              <span class="bar-label">Retrieval</span>
+            </div>
+            <div class="bar" style="height: 18%; background: linear-gradient(to top, #8b5cf6, #a78bfa);">
+              <span class="bar-value">15ms</span>
+              <span class="bar-label">Routing</span>
+            </div>
+            <div class="bar" style="height: 8%; background: linear-gradient(to top, #f59e0b, #fbbf24);">
+              <span class="bar-value">5ms</span>
+              <span class="bar-label">Generation</span>
+            </div>
+          </div>
+          <p style="text-align:center;font-size:0.8rem;color:var(--text-dim);margin-top:1.5rem;">
+            Retrieval dominates latency — expected for semantic search workloads
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Row 2: Throughput & Error Rate -->
+    <div class="grid-2 reveal">
+      <!-- Panel 3: Throughput -->
+      <div class="dashboard-panel">
+        <div class="panel-header">
+          <span class="panel-title">Throughput &amp; In-Flight Requests</span>
+          <span class="panel-tag live">Live</span>
+        </div>
+        <div class="panel-body">
+          <div class="chart-container">
+            <svg viewBox="0 0 400 180" preserveAspectRatio="none">
+              <line x1="0" y1="45" x2="400" y2="45" stroke="rgba(100,116,139,0.15)" stroke-width="0.5"/>
+              <line x1="0" y1="90" x2="400" y2="90" stroke="rgba(100,116,139,0.15)" stroke-width="0.5"/>
+              <line x1="0" y1="135" x2="400" y2="135" stroke="rgba(100,116,139,0.15)" stroke-width="0.5"/>
+              <text x="5" y="42" fill="#64748b" font-size="9">40 rps</text>
+              <text x="5" y="87" fill="#64748b" font-size="9">20 rps</text>
+              <text x="5" y="132" fill="#64748b" font-size="9">10 rps</text>
+              <!-- RPS area -->
+              <path d="M30,100 L60,95 L90,85 L120,90 L150,80 L180,75 L210,85 L240,80 L270,88 L300,82 L330,78 L360,85 L390,80 L390,180 L30,180 Z"
+                fill="url(#grad-cyan)" opacity="0.3"/>
+              <polyline fill="none" stroke="#06b6d4" stroke-width="2.5"
+                points="30,100 60,95 90,85 120,90 150,80 180,75 210,85 240,80 270,88 300,82 330,78 360,85 390,80"/>
+              <!-- In-flight (lower line) -->
+              <polyline fill="none" stroke="#8b5cf6" stroke-width="1.5" stroke-dasharray="4,3"
+                points="30,165 60,162 90,158 120,160 150,155 180,152 210,157 240,154 270,159 300,156 330,153 360,157 390,155"/>
+              <defs>
+                <linearGradient id="grad-cyan" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#06b6d4"/>
+                  <stop offset="100%" stop-color="#06b6d4" stop-opacity="0"/>
+                </linearGradient>
+              </defs>
+            </svg>
+          </div>
+          <div style="display:flex;gap:1.5rem;margin-top:0.5rem;justify-content:center;">
+            <span style="font-size:0.75rem;color:#06b6d4;">● Throughput: ~18 rps</span>
+            <span style="font-size:0.75rem;color:#8b5cf6;">- - In-flight: ~5 req</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Panel 4: Error Rate -->
+      <div class="dashboard-panel">
+        <div class="panel-header">
+          <span class="panel-title">Error Rate (5-minute window)</span>
+          <span class="panel-tag live">Live</span>
+        </div>
+        <div class="panel-body">
+          <div class="chart-container">
+            <svg viewBox="0 0 400 180" preserveAspectRatio="none">
+              <line x1="0" y1="36" x2="400" y2="36" stroke="rgba(100,116,139,0.15)" stroke-width="0.5"/>
+              <line x1="0" y1="90" x2="400" y2="90" stroke="rgba(100,116,139,0.15)" stroke-width="0.5"/>
+              <line x1="0" y1="144" x2="400" y2="144" stroke="rgba(100,116,139,0.15)" stroke-width="0.5"/>
+              <text x="5" y="33" fill="#64748b" font-size="9">5%</text>
+              <text x="5" y="87" fill="#64748b" font-size="9">2%</text>
+              <text x="5" y="141" fill="#64748b" font-size="9">1%</text>
+              <text x="5" y="176" fill="#64748b" font-size="9">0%</text>
+              <!-- SLO threshold -->
+              <line x1="30" y1="144" x2="390" y2="144" stroke="#ef4444" stroke-width="1" stroke-dasharray="6,4" opacity="0.5"/>
+              <text x="310" y="140" fill="#ef4444" font-size="8" font-weight="600">SLO Max: 1%</text>
+              <!-- Decision API error rate -->
+              <path d="M30,174 L60,175 L90,173 L120,176 L150,174 L180,175 L210,172 L240,175 L270,174 L300,176 L330,174 L360,175 L390,174 L390,180 L30,180 Z"
+                fill="rgba(16,185,129,0.15)"/>
+              <polyline fill="none" stroke="#10b981" stroke-width="2.5"
+                points="30,174 60,175 90,173 120,176 150,174 180,175 210,172 240,175 270,174 300,176 330,174 360,175 390,174"/>
+              <!-- Model serving error rate -->
+              <polyline fill="none" stroke="#f59e0b" stroke-width="1.5"
+                points="30,176 60,177 90,175 120,178 150,176 180,177 210,175 240,176 270,177 300,175 330,177 360,176 390,177"/>
+            </svg>
+          </div>
+          <div style="display:flex;gap:1.5rem;margin-top:0.5rem;justify-content:center;">
+            <span style="font-size:0.75rem;color:#10b981;">● Decision API: 0.04%</span>
+            <span style="font-size:0.75rem;color:#f59e0b;">● Model Serving: 0.02%</span>
+            <span style="font-size:0.75rem;color:#ef4444;">- - SLO: 1% max</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Row 3: E2E Pipeline Latency -->
+    <div class="dashboard-panel reveal">
+      <div class="panel-header">
+        <span class="panel-title">Pipeline E2E Latency (p50 / p95 / p99)</span>
+        <span class="panel-tag live">Live</span>
+      </div>
+      <div class="panel-body">
+        <div class="chart-container" style="height: 160px;">
+          <svg viewBox="0 0 800 140" preserveAspectRatio="none">
+            <line x1="0" y1="35" x2="800" y2="35" stroke="rgba(100,116,139,0.15)" stroke-width="0.5"/>
+            <line x1="0" y1="70" x2="800" y2="70" stroke="rgba(100,116,139,0.15)" stroke-width="0.5"/>
+            <line x1="0" y1="105" x2="800" y2="105" stroke="rgba(100,116,139,0.15)" stroke-width="0.5"/>
+            <text x="5" y="32" fill="#64748b" font-size="8">500ms</text>
+            <text x="5" y="67" fill="#64748b" font-size="8">250ms</text>
+            <text x="5" y="102" fill="#64748b" font-size="8">100ms</text>
+            <!-- SLO line -->
+            <line x1="40" y1="35" x2="780" y2="35" stroke="#6366f1" stroke-width="1" stroke-dasharray="6,4" opacity="0.5"/>
+            <text x="680" y="30" fill="#6366f1" font-size="7" font-weight="600">SLO: 500ms (p95)</text>
+            <!-- p99 -->
+            <polyline fill="none" stroke="#ef4444" stroke-width="1.5" opacity="0.6"
+              points="40,78 80,80 120,75 160,82 200,77 240,80 280,74 320,79 360,76 400,81 440,77 480,80 520,75 560,78 600,80 640,76 680,79 720,77 760,78"/>
+            <!-- p95 -->
+            <polyline fill="none" stroke="#f59e0b" stroke-width="2" opacity="0.8"
+              points="40,95 80,93 120,90 160,96 200,92 240,94 280,89 320,93 360,91 400,95 440,92 480,94 520,90 560,93 600,94 640,91 680,93 720,92 760,93"/>
+            <!-- p50 area -->
+            <path d="M40,118 L80,116 L120,112 L160,119 L200,115 L240,117 L280,111 L320,116 L360,114 L400,118 L440,115 L480,117 L520,113 L560,116 L600,117 L640,114 L680,116 L720,115 L760,116 L760,140 L40,140 Z"
+              fill="rgba(16,185,129,0.15)"/>
+            <!-- p50 -->
+            <polyline fill="none" stroke="#10b981" stroke-width="2.5"
+              points="40,118 80,116 120,112 160,119 200,115 240,117 280,111 320,116 360,114 400,118 440,115 480,117 520,113 560,116 600,117 640,114 680,116 720,115 760,116"/>
+          </svg>
+        </div>
+        <div style="display:flex;gap:2rem;margin-top:0.5rem;justify-content:center;">
+          <span style="font-size:0.75rem;color:#10b981;">● p50: ~107ms</span>
+          <span style="font-size:0.75rem;color:#f59e0b;">● p95: ~195ms</span>
+          <span style="font-size:0.75rem;color:#ef4444;">● p99: ~310ms</span>
+          <span style="font-size:0.75rem;color:#6366f1;">- - SLO Target: 500ms</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== PROMETHEUS METRICS ===== -->
+<section>
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="section-tag">Prometheus</span>
+      <h2>25+ Monitored Metrics</h2>
+      <p>Every important aspect of the system is tracked with Prometheus metrics. Here's what we monitor and why.</p>
+    </div>
+
+    <!-- Tabs for metric categories -->
+    <div class="tabs reveal">
+      <button class="tab-btn active" onclick="switchTab(event, 'tab-http')">HTTP &amp; Latency</button>
+      <button class="tab-btn" onclick="switchTab(event, 'tab-decisions')">Decisions</button>
+      <button class="tab-btn" onclick="switchTab(event, 'tab-pipeline')">Pipeline Stages</button>
+      <button class="tab-btn" onclick="switchTab(event, 'tab-quality')">RAG Quality</button>
+      <button class="tab-btn" onclick="switchTab(event, 'tab-business')">Business &amp; Cost</button>
+    </div>
+
+    <div id="tab-http" class="tab-content active">
+      <div class="alert-table" style="display:block;overflow-x:auto;">
+        <table class="alert-table" style="width:100%;">
+          <thead>
+            <tr><th>Metric</th><th>Type</th><th>What It Tracks</th><th>Why It Matters</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>assist_http_requests_total</code></td>
+              <td><span class="badge badge-info">Counter</span></td>
+              <td>Every HTTP request by method, path, status code</td>
+              <td>Know exactly how many requests per endpoint and if errors are increasing</td>
+            </tr>
+            <tr>
+              <td><code>assist_http_request_duration_seconds</code></td>
+              <td><span class="badge badge-purple">Histogram</span></td>
+              <td>How long each request takes (p50, p95, p99)</td>
+              <td>Catch slowdowns before customers notice</td>
+            </tr>
+            <tr>
+              <td><code>assist_http_request_errors_total</code></td>
+              <td><span class="badge badge-info">Counter</span></td>
+              <td>Exceptions and 5xx errors by type</td>
+              <td>Spot bugs and failures as they happen</td>
+            </tr>
+            <tr>
+              <td><code>assist_inflight_requests</code></td>
+              <td><span class="badge badge-success">Gauge</span></td>
+              <td>Current number of requests being processed</td>
+              <td>Detect overload and capacity issues in real-time</td>
+            </tr>
+            <tr>
+              <td><code>assist_rate_limit_exceeded_total</code></td>
+              <td><span class="badge badge-info">Counter</span></td>
+              <td>Rate limit rejections by scope (tenant/user)</td>
+              <td>Track abuse attempts and ensure fair usage</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div id="tab-decisions" class="tab-content">
+      <div style="overflow-x:auto;">
+        <table class="alert-table" style="width:100%;">
+          <thead>
+            <tr><th>Metric</th><th>Type</th><th>What It Tracks</th><th>Why It Matters</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>assist_decisions_total</code></td>
+              <td><span class="badge badge-info">Counter</span></td>
+              <td>Decision outcomes: recommend, abstain, or escalate</td>
+              <td>Track the balance of AI confidence vs human escalations</td>
+            </tr>
+            <tr>
+              <td><code>assist_decision_confidence</code></td>
+              <td><span class="badge badge-purple">Histogram</span></td>
+              <td>Distribution of confidence scores across all decisions</td>
+              <td>Detect if the model is becoming overconfident or too cautious</td>
+            </tr>
+            <tr>
+              <td><code>assist_handoffs_total</code></td>
+              <td><span class="badge badge-info">Counter</span></td>
+              <td>How many cases escalated to human agents</td>
+              <td>Monitor escalation rates and ensure AI doesn't overwhelm human teams</td>
+            </tr>
+            <tr>
+              <td><code>assist_decision_cache_hits_total</code></td>
+              <td><span class="badge badge-info">Counter</span></td>
+              <td>Idempotent request cache hits</td>
+              <td>Prevent duplicate processing of the same request</td>
+            </tr>
+            <tr>
+              <td><code>assist_shadow_predictions_total</code></td>
+              <td><span class="badge badge-info">Counter</span></td>
+              <td>Challenger model shadow predictions logged</td>
+              <td>Track experimental model performance without affecting production</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div id="tab-pipeline" class="tab-content">
+      <div style="overflow-x:auto;">
+        <table class="alert-table" style="width:100%;">
+          <thead>
+            <tr><th>Metric</th><th>Type</th><th>What It Tracks</th><th>Why It Matters</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>assist_pipeline_stage_duration_seconds</code></td>
+              <td><span class="badge badge-purple">Histogram</span></td>
+              <td>Time spent in each pipeline stage (PII, injection, retrieval, routing, generation)</td>
+              <td>Pinpoint exactly which stage is slowing down when latency spikes</td>
+            </tr>
+            <tr>
+              <td><code>assist_pipeline_total_duration_seconds</code></td>
+              <td><span class="badge badge-purple">Histogram</span></td>
+              <td>Total end-to-end pipeline wall time</td>
+              <td>The definitive measure of user-facing latency</td>
+            </tr>
+            <tr>
+              <td><code>assist_injection_detections_total</code></td>
+              <td><span class="badge badge-info">Counter</span></td>
+              <td>Prompt injection attempts (blocked or filtered)</td>
+              <td>Security monitoring — detect attack patterns</td>
+            </tr>
+            <tr>
+              <td><code>assist_issue_text_token_count</code></td>
+              <td><span class="badge badge-purple">Histogram</span></td>
+              <td>Input length distribution</td>
+              <td>Detect unusual input patterns that could indicate drift or abuse</td>
+            </tr>
+            <tr>
+              <td><code>assist_model_guardrail_fallback_total</code></td>
+              <td><span class="badge badge-info">Counter</span></td>
+              <td>Times the system fell back from ML model to heuristic rules</td>
+              <td>Critical safety metric — high fallback rate = model instability</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div id="tab-quality" class="tab-content">
+      <div style="overflow-x:auto;">
+        <table class="alert-table" style="width:100%;">
+          <thead>
+            <tr><th>Metric</th><th>Type</th><th>What It Tracks</th><th>Why It Matters</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>assist_rag_faithfulness</code></td>
+              <td><span class="badge badge-purple">Histogram</span></td>
+              <td>How well AI responses match the source evidence</td>
+              <td>Low faithfulness = the AI is making things up (hallucinating)</td>
+            </tr>
+            <tr>
+              <td><code>assist_rag_hallucination_ratio</code></td>
+              <td><span class="badge badge-purple">Histogram</span></td>
+              <td>Percentage of responses with unsupported claims</td>
+              <td>Alert if hallucinations exceed 35% — serious quality issue</td>
+            </tr>
+            <tr>
+              <td><code>assist_rag_citation_coverage</code></td>
+              <td><span class="badge badge-purple">Histogram</span></td>
+              <td>How often responses include proper evidence citations</td>
+              <td>Ensures accountability — every claim should link back to a source</td>
+            </tr>
+            <tr>
+              <td><code>assist_retrieval_evidence_score</code></td>
+              <td><span class="badge badge-purple">Histogram</span></td>
+              <td>Quality scores of retrieved knowledge base chunks</td>
+              <td>Low scores mean the knowledge base needs updating or the question is new</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div id="tab-business" class="tab-content">
+      <div style="overflow-x:auto;">
+        <table class="alert-table" style="width:100%;">
+          <thead>
+            <tr><th>Metric</th><th>Type</th><th>What It Tracks</th><th>Why It Matters</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>assist_request_cost_dollars</code></td>
+              <td><span class="badge badge-purple">Histogram</span></td>
+              <td>USD cost per request (by generation backend)</td>
+              <td>Track infrastructure costs and optimize spending</td>
+            </tr>
+            <tr>
+              <td><code>assist_routing_accuracy</code></td>
+              <td><span class="badge badge-success">Gauge</span></td>
+              <td>Daily classification accuracy (from evaluation)</td>
+              <td>The headline accuracy number — updated daily via evaluation pipeline</td>
+            </tr>
+            <tr>
+              <td><code>assist_escalation_recall</code></td>
+              <td><span class="badge badge-success">Gauge</span></td>
+              <td>How well the system catches cases that need escalation</td>
+              <td>Missing escalations = customers getting wrong answers</td>
+            </tr>
+            <tr>
+              <td><code>assist_calibration_ece</code></td>
+              <td><span class="badge badge-success">Gauge</span></td>
+              <td>Expected Calibration Error — how honest the confidence scores are</td>
+              <td>Low ECE = when the system says "80% sure", it's right ~80% of the time</td>
+            </tr>
+            <tr>
+              <td><code>assist_abstain_rate</code></td>
+              <td><span class="badge badge-success">Gauge</span></td>
+              <td>Percentage of requests where the system defers to humans</td>
+              <td>Too high = wasted automation; too low = risky over-confidence</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== SLO GAUGES ===== -->
+<section style="background: var(--bg-surface);">
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="section-tag">Service Level Objectives</span>
+      <h2>Current SLO Status</h2>
+      <p>These are the key promises the system makes about its performance. Green means we're meeting the target.</p>
+    </div>
+
+    <div class="gauge-row reveal">
+      <div class="gauge">
+        <svg viewBox="0 0 36 36">
+          <circle class="track" cx="18" cy="18" r="15.5" stroke-dasharray="97.4 97.4"/>
+          <circle class="fill-success" cx="18" cy="18" r="15.5" stroke-dasharray="96.3 97.4"/>
+        </svg>
+        <div class="gauge-value">99.0%</div>
+        <div class="gauge-label">API Availability</div>
+      </div>
+      <div class="gauge">
+        <svg viewBox="0 0 36 36">
+          <circle class="track" cx="18" cy="18" r="15.5" stroke-dasharray="97.4 97.4"/>
+          <circle class="fill-success" cx="18" cy="18" r="15.5" stroke-dasharray="87.7 97.4"/>
+        </svg>
+        <div class="gauge-value">102ms</div>
+        <div class="gauge-label">p95 Latency (&lt;1s)</div>
+      </div>
+      <div class="gauge">
+        <svg viewBox="0 0 36 36">
+          <circle class="track" cx="18" cy="18" r="15.5" stroke-dasharray="97.4 97.4"/>
+          <circle class="fill-success" cx="18" cy="18" r="15.5" stroke-dasharray="96.3 97.4"/>
+        </svg>
+        <div class="gauge-value">&lt;1%</div>
+        <div class="gauge-label">Error Rate</div>
+      </div>
+      <div class="gauge">
+        <svg viewBox="0 0 36 36">
+          <circle class="track" cx="18" cy="18" r="15.5" stroke-dasharray="97.4 97.4"/>
+          <circle class="fill-success" cx="18" cy="18" r="15.5" stroke-dasharray="58.5 97.4"/>
+        </svg>
+        <div class="gauge-value">≥0.60</div>
+        <div class="gauge-label">Faithfulness</div>
+      </div>
+      <div class="gauge">
+        <svg viewBox="0 0 36 36">
+          <circle class="track" cx="18" cy="18" r="15.5" stroke-dasharray="97.4 97.4"/>
+          <circle class="fill-success" cx="18" cy="18" r="15.5" stroke-dasharray="63.9 97.4"/>
+        </svg>
+        <div class="gauge-value">&lt;35%</div>
+        <div class="gauge-label">Hallucination Cap</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== RECORDING RULES ===== -->
+<section>
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="section-tag">Prometheus Rules</span>
+      <h2>Recording Rules</h2>
+      <p>Prometheus pre-computes these values every 30 seconds, so dashboards load instantly.</p>
+    </div>
+
+    <div class="grid-2 reveal">
+      <div class="dashboard-panel">
+        <div class="panel-header">
+          <span class="panel-title">📊 Error Rate &amp; Availability</span>
+        </div>
+        <div class="panel-body">
+          <div class="progress-item">
+            <div class="progress-label"><span>decision_api:error_rate_5m</span><span>0.04%</span></div>
+            <div class="progress-bar"><div class="progress-fill red" style="width: 4%"></div></div>
+          </div>
+          <div class="progress-item">
+            <div class="progress-label"><span>decision_api:availability_5m</span><span>99.96%</span></div>
+            <div class="progress-bar"><div class="progress-fill green" style="width: 99.96%"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="dashboard-panel">
+        <div class="panel-header">
+          <span class="panel-title">⏱️ Latency Percentiles</span>
+        </div>
+        <div class="panel-body">
+          <div class="progress-item">
+            <div class="progress-label"><span>latency_p50_5m</span><span>56ms</span></div>
+            <div class="progress-bar"><div class="progress-fill green" style="width: 11%"></div></div>
+          </div>
+          <div class="progress-item">
+            <div class="progress-label"><span>latency_p95_5m</span><span>102ms</span></div>
+            <div class="progress-bar"><div class="progress-fill blue" style="width: 20%"></div></div>
+          </div>
+          <div class="progress-item">
+            <div class="progress-label"><span>latency_p99_5m</span><span>185ms</span></div>
+            <div class="progress-bar"><div class="progress-fill purple" style="width: 37%"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="dashboard-panel">
+        <div class="panel-header">
+          <span class="panel-title">🔄 Throughput</span>
+        </div>
+        <div class="panel-body">
+          <div class="progress-item">
+            <div class="progress-label"><span>throughput_rps_5m</span><span>18.4 rps</span></div>
+            <div class="progress-bar"><div class="progress-fill cyan" style="width: 46%"></div></div>
+          </div>
+          <div class="progress-item">
+            <div class="progress-label"><span>throughput_rps_1h</span><span>16.2 rps</span></div>
+            <div class="progress-bar"><div class="progress-fill cyan" style="width: 40%"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="dashboard-panel">
+        <div class="panel-header">
+          <span class="panel-title">💰 Cost &amp; Quality</span>
+        </div>
+        <div class="panel-body">
+          <div class="progress-item">
+            <div class="progress-label"><span>cost_per_request_mean_1h</span><span>$0.0012</span></div>
+            <div class="progress-bar"><div class="progress-fill orange" style="width: 12%"></div></div>
+          </div>
+          <div class="progress-item">
+            <div class="progress-label"><span>faithfulness_mean_1h</span><span>0.72</span></div>
+            <div class="progress-bar"><div class="progress-fill green" style="width: 72%"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== Prometheus Config ===== -->
+<section style="background: var(--bg-surface);">
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="section-tag">Configuration</span>
+      <h2>Prometheus Scrape Configuration</h2>
+      <p>How Prometheus connects to the services to collect metrics.</p>
+    </div>
+
+    <div class="dashboard-panel reveal">
+      <div class="panel-header">
+        <span class="panel-title">📝 prometheus.yml</span>
+      </div>
+      <div class="panel-body">
+        <div class="code-block">global:
+  scrape_interval: 15s      # Collect metrics every 15 seconds
+  evaluation_interval: 30s  # Evaluate alert rules every 30 seconds
+
+alerting:
+  alertmanagers:
+    - targets: ['alertmanager:9093']  # Send alerts here
+
+rule_files:
+  - '/etc/prometheus/rules/*.yml'     # SLO alert rules
+
+scrape_configs:
+  - job_name: 'decision-api'          # Main application
+    static_configs:
+      - targets: ['decision-api:8000']
+    metrics_path: /metrics
+
+  - job_name: 'model-serving'         # ML model server
+    static_configs:
+      - targets: ['model-serving:9000']
+    metrics_path: /metrics
+
+  - job_name: 'prometheus'            # Self-monitoring
+    static_configs:
+      - targets: ['localhost:9090']</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="container">
+    <div class="page-nav">
+      <a href="architecture.html"><div><span class="nav-label">← Previous</span><span class="nav-title">Architecture</span></div></a>
+      <a href="ml-ops.html"><div><span class="nav-label">Next →</span><span class="nav-title">ML Operations</span></div></a>
+    </div>
+    <p style="margin-top:2rem">AI Decision Platform — Industry-Agnostic Customer Support Intelligence</p>
+  </div>
+</footer>
+
+<script>
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('visible'); });
+}, { threshold: 0.1 });
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+function switchTab(event, tabId) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById(tabId).classList.add('active');
+}
+</script>
+</body>
+</html>
